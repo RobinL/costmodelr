@@ -17,6 +17,10 @@ Imports:
   zoo,
   memoise,
   quantmod,
-  stringr
+  stringr,
+  readr
 RoxygenNote: 6.0.1
 Roxygen: list(markdown = TRUE)
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr

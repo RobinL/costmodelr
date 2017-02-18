@@ -14,7 +14,12 @@ recurring_cost(assumption_list, key_dates)
 \item id: The cost (line item) ID.  This can be used later to join on other information such as the category of spend, etc
 \item price_in_original_currency_real: The price of the line item
 \item currency: A string.  \code{GBP} if Sterling, otherwise \code{USD}, \code{EUR} etc.
-\item 
+\item frequency:  How often the cost occurs.  \code{day}, \code{week}, \code{month}, \code{year} etc.
+\item first date:  a Date. The first time the cost occurs
+\item growth_in_real_cost_percent_per_annum
+\item growth_in_real_cost_absolute_per_annum
+\item growth_in_quantity_percent_per_annum
+\item growth_in_quantity_absolute_per_annum
 }}
 }
 \description{

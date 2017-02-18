@@ -96,5 +96,7 @@ apply_absolute_increase_to_df_col <- function(df, annual_increase, start_date, c
 
 # devtools::document()
 # roxygen2::roxygenise()
+#  covr::package_coverage()
+# shine(package_coverage())
 
 

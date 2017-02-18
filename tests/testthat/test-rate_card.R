@@ -1,9 +1,13 @@
 context("rate_card")
 
-staff_utilisation <- tibble::data_frame(date = as.Date(c("2017-02-01", "2017-02-08", "2017-02-15")),
-                                        TA.1 = c(0.5,1,0.5),
-                                        TA.2 = c(0.5,1,0.5),
-                                        PM = c(0.5,1,0.5))
+# staff_utilisation <- tibble::data_frame(date = as.Date(c("2017-02-01", "2017-02-08", "2017-02-15")),
+#                                         TA.1 = c(0.5,1,0.5),
+#                                         TA.2 = c(0.5,1,0.5),
+#                                         PM = c(0.5,1,0.5))
+# write.csv(staff_utilisation, "inst/extdata/staff_utilisation_1.csv", row.names=FALSE)
+# readr::read_csv("inst/extdata/staff_utilisation_1.csv")
+
+staff_utilisation <- readr::read_csv(system.file("extdata", "staff_utilisation_1.csv", package="costmodelr"), col_types=readr::cols())
 
 rate_card <- tibble::data_frame(id = c("TA", "PM"),
                                 price_gbp_real = c(140, 70),
@@ -45,7 +49,14 @@ test_that("get_staff_line_item", {
 })
 
 test_that("get_all_staff_line_items", {
-  get_all_staff_line_items(staff_utilisation, rate_card, key_dates)
-})
+  all <- get_all_staff_line_items(staff_utilisation, rate_card, key_dates)
 
+  # Same number of rows of each type
+  agg <- all %>%
+    dplyr::group_by(id) %>%
+    dplyr::summarise(count = n())
+
+  expect_true(all(agg$count==425))
+
+})
 

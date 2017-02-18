@@ -1,5 +1,4 @@
 expand_staff_utilisation_to_time_horizon <- function(staff_utilisation, key_dates) {
-
   orig_dates <- staff_utilisation$date
   staff_utilisation <- expand_to_time_horizon(staff_utilisation, key_dates)
   staff_utilisation[!(staff_utilisation$date %in% orig_dates),colnames(staff_utilisation) != "date"] <- 0
@@ -45,6 +44,11 @@ get_staff_line_item <- function(col, staff_utilisation, rate_card, key_dates) {
 }
 
 get_all_staff_line_items <- function(staff_utilisation, rate_card, key_dates) {
+
+  stop_duplicated_dates(staff_utilisation)
+  stop_duplicated_dates(key_dates)
+
+  staff_utilisation = expand_staff_utilisation_to_time_horizon(staff_utilisation, key_dates)
 
   staff_line_items <- colnames(staff_utilisation)[colnames(staff_utilisation) != "date"]
 
