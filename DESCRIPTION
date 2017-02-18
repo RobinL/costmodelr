@@ -14,5 +14,7 @@ Imports:
   dplyr,
   lubridate,
   XLConnect,
-  zoo
+  zoo,
+  memoise,
+  quantmod
 RoxygenNote: 6.0.1

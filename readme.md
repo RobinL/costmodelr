@@ -44,3 +44,13 @@ So the general data processing flow is:
 assumption format -> target data structure for each assumption line item -> concatenated dataframe -> summary tables and charts.
 
 We will then be able to define other
+
+## Notes
+
+One issue with cost modelling is how to deal with continuous costs like staff costs
+
+If you model staff costs as a weekly payment, then summarize by month, you will get different amounts each month, so your charts will look weird
+
+So we model continuous costs like running costs and staff costs daily
+
+We need a way of interpolating for continuous costs - if you have weekly costs, splitting them to daily etc.  A kind of 'interpolate and split'
