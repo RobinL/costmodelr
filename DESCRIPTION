@@ -16,5 +16,7 @@ Imports:
   XLConnect,
   zoo,
   memoise,
-  quantmod
+  quantmod,
+  stringr
 RoxygenNote: 6.0.1
+Roxygen: list(markdown = TRUE)
