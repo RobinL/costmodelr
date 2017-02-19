@@ -127,12 +127,11 @@ create_id_column <- function(df, prefix) {
   df
 }
 
-recurring_cost_assumptions <- create_id_column(recurring_cost_assumptions, "rc_")
+freq_multiplier = list("week" =  1/7,
+                       "day" = 1,
+                       "month" = 12/365.25,
+                       "year" = 1/365.25)
 
 
-# devtools::document()
-# roxygen2::roxygenise()
-#  covr::package_coverage()
-# shine(package_coverage())
 
 

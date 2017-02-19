@@ -9,13 +9,13 @@ context("rate_card")
 
 staff_utilisation <- readr::read_csv(system.file("extdata", "staff_utilisation_1.csv", package="costmodelr"), col_types=readr::cols())
 
-rate_card <- tibble::data_frame(id = c("TA", "PM"),
-                                price_gbp_real = c(140, 70),
-                                price_frequency = c("week", "week"),
-                                annual_percentage_increase_real = c(0.0,0.1)
-)
-
-
+# rate_card <- tibble::data_frame(id = c("TA", "PM"),
+#                                 price_gbp_real = c(140, 70),
+#                                 price_frequency = c("week", "week"),
+#                                 annual_percentage_increase_real = c(0.0,0.1)
+# )
+rate_card <- readr::read_csv(system.file("extdata", "rate_card_1.csv", package="costmodelr"), col_types=readr::cols())
+# write.csv(rate_card, "inst/extdata/rate_card_1.csv", row.names=FALSE)
 
 
 test_that("staff_u_id_to_rate_card_id", {
