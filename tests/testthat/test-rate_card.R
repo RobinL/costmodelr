@@ -15,8 +15,8 @@ rate_card <- tibble::data_frame(id = c("TA", "PM"),
                                 annual_percentage_increase_real = c(0.0,0.1)
 )
 
-key_dates <- tibble::data_frame(date = as.Date(c("2017-01-01","2017-01-03","2018-03-01")),
-                                other = 1:3)
+
+
 
 test_that("staff_u_id_to_rate_card_id", {
   expect_equal(staff_u_id_to_rate_card_id("TA.1"), "TA")
@@ -59,4 +59,6 @@ test_that("get_all_staff_line_items", {
   expect_true(all(agg$count==425))
 
 })
+
+
 

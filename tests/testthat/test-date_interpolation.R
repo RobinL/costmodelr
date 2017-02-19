@@ -63,3 +63,10 @@ test_that("interpolate_days_numeric", {
   expect_error(interpolate_days(test_df, date_col = "b"))
 
 })
+
+
+
+
+
+
+

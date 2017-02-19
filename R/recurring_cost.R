@@ -13,13 +13,13 @@
 #' * growth_in_quantity_absolute_per_annum
 #' @param key_dates a key dates dataframe so the recurring costs have an end date
 #' @export
-recurring_cost <- function(assumption_list, key_dates) {
-
-  if (growth_in_real_cost_absolute_per_annum != 0 & growth_in_real_cost_percent_per_annum !=0) {
+get_recurring_cost_chunk <- function(assumption_list, key_dates) {
+  al <- assumption_list
+  if (al$growth_in_real_cost_absolute_per_annum != 0 & al$growth_in_real_cost_percent_per_annum !=0) {
     stop("Recurring costs must have either absolute or percentage growth, not both")
   }
 
-  al <- assumption_list
+
   rc_dates <- seq(al$first_date, to=kd_max(key_dates), by=al$frequency)
   df <- tibble::data_frame("date" = rc_dates, id=al$id)
 
@@ -49,7 +49,52 @@ recurring_cost <- function(assumption_list, key_dates) {
                                             col_to_increase="quantity")
   }
 
-  d
+  df
 
 }
+
+get_recurring_cost_id <- function(assumption_list, cost_model) {
+  cols_to_keep <- cost_model$id_join_columns
+  l <- assumption_list[cols_to_keep]
+  tibble::as_data_frame(l)
+
+}
+
+
+process_recurring_costs <- function(cost_model) {
+
+  assumptions_table <- cost_model$registered_modules$recurring_cost$assumptions
+  new_chunks <- list()
+  new_ids <- list()
+
+  # Iterate through rows of the assumptions, getting chunks
+  for (i in 1:nrow(assumptions_table)){
+    this_row <- assumptions_table[i,]
+    l <- as.list(this_row)
+
+    chunk <- get_recurring_cost_chunk(l, cost_model$key_dates)
+    new_chunks[[l$id]] <- chunk
+
+    id <- get_recurring_cost_id(l, cost_model)
+    new_ids[[l$id]] <- id
+
+  }
+
+  cost_model$chunks <- append(cost_model$chunks, new_chunks)
+  cost_model$id_lookup <- append(cost_model$id_lookup, new_ids)
+
+  cost_model
+}
+
+
+add_recurring_cost <- function(cost_model, recurring_cost_assumptions) {
+  cost_model$registered_modules$recurring_cost <- list()
+  recurring_cost_assumptions <- create_id_column(recurring_cost_assumptions, "rc_")
+  cost_model$registered_modules$recurring_cost$assumptions <- recurring_cost_assumptions
+  cost_model$registered_modules$recurring_cost$process_module <- process_recurring_costs
+  cost_model
+}
+
+
+
 

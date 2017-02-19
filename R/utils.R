@@ -93,6 +93,42 @@ apply_absolute_increase_to_df_col <- function(df, annual_increase, start_date, c
   df
 }
 
+#' Process an assumptions table by apply a function
+#'
+#' @export
+process_assumptions_table <- function(assumptions_table,fn) {
+  return_list <- list()
+
+  if (nrow(assumptions_table) > 0) {
+
+    for (i in 1:nrow(assumptions_table)){
+      this_row <- assumptions_table[i,]
+
+      l <- as.list(this_row)
+
+      if ("id" %in% names(l)) {
+        return_list[[l$id]] <- fn(l)
+      } else {
+        stop("Each assumption must have an ID")
+      }
+
+    }
+  }
+
+  return_list
+
+}
+
+create_id_column <- function(df, prefix) {
+  if ("id" %in% colnames(df)) {
+    stop("Error in creating unique id column.  There's already a column called id")
+  }
+  df$id <- paste0(prefix, 1:nrow(df))
+  df
+}
+
+recurring_cost_assumptions <- create_id_column(recurring_cost_assumptions, "rc_")
+
 
 # devtools::document()
 # roxygen2::roxygenise()
