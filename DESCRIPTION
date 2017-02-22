@@ -18,7 +18,8 @@ Imports:
   memoise,
   quantmod,
   stringr,
-  readr
+  readr,
+  reshape2
 RoxygenNote: 6.0.1
 Roxygen: list(markdown = TRUE)
 Suggests: knitr,

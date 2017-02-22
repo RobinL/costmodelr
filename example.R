@@ -16,12 +16,10 @@ cost_model <- add_user_variable_costs(cost_model, users, user_variable_costs)
 
 cost_model <- run_cost_model(cost_model)
 
-
-
 chunks <- do.call(rbind, cost_model$chunks)
 id_lookup <- do.call(rbind, cost_model$id_lookup)
 
-chunk
+chunks
 
 
 # devtools::document()
