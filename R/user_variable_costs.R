@@ -1,27 +1,74 @@
-uvc =  readr::read_csv("inst/extdata/user_variable_costs_1.csv", col_types=readr::cols())
+#' Take an assumptions list, a table of the number of users, and key dates, and create a chunk representing user variable costs
+#'
+#'
+get_user_variable_costs_chunk <- function(assumptions_list, users, key_dates) {
+  al <- assumptions_list
+  df <- users
+  df$quantity <- 0
 
-uvc <- create_id_column(uvc, "uvc_")
+  df$id <- al$id
 
-users =  readr::read_csv("inst/extdata/users_1.csv", col_types=readr::cols())
-key_dates =  readr::read_csv("inst/extdata/key_dates_1.csv", col_types=readr::cols())
+  df$quantity_increase_per_user <- al$growth_in_quantity_absolute_per_annum_per_user/365.25
+  df$total_quantity_increase <- df$quantity_increase_per_user * df$num_users
+  df$quantity <- cumsum(df$total_quantity_increase)
 
-al <- as.list(uvc[1,])
-str(al)
-# Need to convert all costs to daily
-users <- expand_to_time_horizon(users,key_dates)
-users <- interpolate_days_numeric(users)
+  df <- remove_named_cols_from_df(df, c("quantity_increase_per_user", "quantity_increase_per_user", "total_quantity_increase", "num_users"))
+  df$price_gbp_real <- al$price_in_original_currency_real * get_xr(al$currency, "GBP") * freq_multiplier[[al$pricefrequency]]
+  df
+}
 
-# Need to get daily price
+#' Get a data frame consisting of a single row with the assumption ID and auxiliary information about e.g. the cost category
+#'
+#'
+get_user_variable_costs_id <- function(assumption_list, cost_model) {
+  cols_to_keep <- cost_model$id_join_columns
+  l <- assumption_list[cols_to_keep]
+  tibble::as_data_frame(l)
 
-users$quantity <- 0
-df <- users
-df$id <- al$id
+}
 
-df$quantity_increase_per_user <- al$growth_in_quantity_absolute_per_annum_per_user/365.25
-df$total_quantity_increase <- df$quantity_increase_per_user * df$num_users
+#' Given a cost model, create the chunks corresponding to user variable costs
+#'
+#' @export
+process_user_variable_costs <- function(cost_model) {
 
-df$quantity <- cumsum(df$total_quantity_increase)
+  cost_model$registered_modules$user_variable_cost$num_user <- expand_to_time_horizon(cost_model$registered_modules$user_variable_cost$num_user,cost_model$key_dates)
+  cost_model$registered_modules$user_variable_cost$num_user <- interpolate_days_numeric(cost_model$registered_modules$user_variable_cost$num_user)
 
-df <- remove_named_cols_from_df(df, c("quantity_increase_per_user", "quantity_increase_per_user", "total_quantity_increase", "num_users"))
-df$price_gbp_real <- al$price_in_original_currency_real * get_xr(al$currency, "GBP") * freq_multiplier[[al$pricefrequency]]
-df
+  assumptions_table <- cost_model$registered_modules$user_variable_cost$assumptions
+  new_chunks <- list()
+  new_ids <- list()
+
+  # Iterate through rows of the assumptions, getting chunks
+  for (i in 1:nrow(assumptions_table)){
+    this_row <- assumptions_table[i,]
+    l <- as.list(this_row)
+
+    chunk <- get_user_variable_costs_chunk(l, cost_model$registered_modules$user_variable_cost$num_user, cost_model$key_dates)
+    new_chunks[[l$id]] <- chunk
+
+    id <- get_user_variable_costs_id(l, cost_model)
+    new_ids[[l$id]] <- id
+
+  }
+
+  cost_model$chunks <- append(cost_model$chunks, new_chunks)
+  cost_model$id_lookup <- append(cost_model$id_lookup, new_ids)
+
+  cost_model
+}
+
+#' Add assumptions about recurring costs to the cost model
+#'
+#' @export
+add_user_variable_costs <- function(cost_model, num_users, user_variable_cost_assumptions) {
+
+  cost_model$registered_modules$user_variable_cost <- list()
+
+  cost_model$registered_modules$user_variable_cost$num_users <- num_users
+
+  user_variable_cost_assumptions <- create_id_column(user_variable_cost_assumptions, "uvc_")
+  cost_model$registered_modules$user_variable_cost$assumptions <- user_variable_cost_assumptions
+  cost_model$registered_modules$user_variable_cost$process_module <- process_user_variable_costs
+  cost_model
+}
