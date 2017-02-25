@@ -1,9 +1,26 @@
 
-
-expand_staff_utilisation_to_time_horizon <- function(staff_utilisation, key_dates) {
+#' If staff utilisation is provided for a time horizon shorter than key dates, fill in
+#'
+#' Zero out all dates outside the time horizon provided
+expand_staff_utilisation_to_time_horizon <- function(staff_utilisation, key_dates, frequency) {
   orig_dates <- staff_utilisation$date
+
   staff_utilisation <- expand_to_time_horizon(staff_utilisation, key_dates)
-  staff_utilisation[!(staff_utilisation$date %in% orig_dates),colnames(staff_utilisation) != "date"] <- 0
+  # We want to set staff utilisation for dates outside the provided data to zero
+  # This applies to all cols in the staff utilisation chart (each one relates to a staff member) except for the date col
+  staff_utilisation[staff_utilisation$date > max(orig_dates), colnames(staff_utilisation) != "date"] <- 0
+  staff_utilisation[staff_utilisation$date < min(orig_dates), colnames(staff_utilisation) != "date"] <- 0
+
+  # This dataframe will be filled forwards, so need to make sure we include the day after the last date with zeros
+
+  if (max(staff_utilisation$date) - max(orig_dates) > 1) {
+    #Duplicate last row
+    staff_utilisation <- staff_utilisation[c(1:nrow(staff_utilisation), nrow(staff_utilisation)),]
+
+    #Set date on penultimate row to the next date
+    staff_utilisation[nrow(staff_utilisation)-1, "date"] <- max(orig_dates) + 1
+  }
+
   staff_utilisation
 }
 
@@ -12,6 +29,7 @@ staff_u_id_to_rate_card_id <- function(id) {
   id <- stringr::str_replace(id, '(_[0-9]{1,3}$)', "")
   id
 }
+
 
 get_staff_line_item <- function(col, staff_utilisation, rate_card, key_dates) {
 
@@ -24,7 +42,14 @@ get_staff_line_item <- function(col, staff_utilisation, rate_card, key_dates) {
 
   l <- as.list(rate_card[rate_card$id == rc_id,])
 
-  this_staff_line_item$price_gbp_real <- l$price_gbp_real * freq_multiplier[[l$price_frequency]]
+  if (l$price_frequency == "day") {
+    f_mult <- 5/7
+
+  } else {
+    f_mult <- freq_multiplier[[l$price_frequency]]
+  }
+
+  this_staff_line_item$price_gbp_real <- l$price_gbp_real * f_mult
 
   # Finally interpolate foward
   chars <- interpolate_days_character(this_staff_line_item, interpolation_fn =  zoo::na.locf)
@@ -62,6 +87,10 @@ process_staff_utilisation <- function(cost_model){
 
   new_chunks <- list()
   new_ids <- list()
+
+  if (any(rate_card$price_frequency == "day")){
+    message("Note: Day rates for staff are assumed to apply 5 days per week")
+  }
 
   for (col in staff_line_items) {
     id <- paste0("su_", col)
