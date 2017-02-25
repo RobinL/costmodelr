@@ -128,6 +128,12 @@ stop_if_not_date <- function(df, col_name="date") {
   }
 }
 
+stop_expected_fields <- function(fields, this_list) {
+  if (!(all(fields %in% names(this_list)))) {
+    message <- paste(c("You are missing some fields.  Expecting the following: ", fields), sep=", ")
+    stop(message)
+  }
+}
 
 
 

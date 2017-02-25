@@ -8,5 +8,7 @@ expand_to_time_horizon(this_df, key_dates, this_df_date_col = "date",
   key_dates_date_col = "date")
 }
 \description{
+Fills forward and backward all columns for dates above the maximum in this_df
+To avoid this behaviour, just set the quantities in the first and last rows in this_df to zero
 Will throw a warning if this df contains dates outside of the key dates range
 }
