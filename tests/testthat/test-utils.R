@@ -18,7 +18,7 @@ test_that("test posixt_cols_to_date", {
 })
 
 test_that("read_worksheet_from_file_and_tidy",{
-  df <- read_worksheet_from_file_and_tidy("assumptions_test_1.xlsx", "key_dates")
+  df <- read_worksheet_from_file_and_tidy("key_dates.xlsx", "key_dates")
   expect_equal(class(df)[1], "tbl_df")
   expect_equal(class(df$date), "Date")
   expect_equal(class(df$name), "character")

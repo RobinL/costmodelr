@@ -1,6 +1,6 @@
 Package: costmodelr
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Build cost models in R from lists of assumptions, with rigorous unit tests
 Version: 0.1.0
 Author: Robin Linacre
 Maintainer: The package maintainer <robinlinacre@hotmail.com>
