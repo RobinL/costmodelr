@@ -37,7 +37,6 @@ process_oneoff_costs <- function(cost_model) {
     l <- as.list(this_row)
 
     chunk <- get_oneoff_cost_chunk(l, cost_model$key_dates)
-    print(chunk)
     new_chunks[[l$id]] <- chunk
 
     id <- get_oneoff_cost_id(l, cost_model)

@@ -13,12 +13,13 @@ test_that("test full example 1", {
     user_variable_costs <- readr::read_csv(system.file("extdata", "user_variable_costs_1.csv", package="costmodelr"), col_types=readr::cols())
     users <- readr::read_csv(system.file("extdata", "users_1.csv", package="costmodelr"), col_types=readr::cols())
 
+    oneoff <- readr::read_csv(system.file("extdata", "oneoff_costs_1.csv", package="costmodelr"), col_types=readr::cols())
     cost_model <- create_cost_model(key_dates)
 
     cost_model <- add_recurring_cost(cost_model, recurring_cost_assumptions)
     cost_model <- add_staff_utilisation(cost_model, staff_utilisation, rate_card)
     cost_model <- add_user_variable_costs(cost_model, users, user_variable_costs)
-
+    cost_model <- add_oneoff_costs(cost_model, oneoff)
     cost_model <- run_cost_model(cost_model)
 
     chunks <- do.call(rbind, cost_model$chunks)
