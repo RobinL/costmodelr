@@ -9,6 +9,7 @@ expand_staff_utilisation_to_time_horizon <- function(staff_utilisation, key_date
 
 staff_u_id_to_rate_card_id <- function(id) {
   id <- stringr::str_replace(id, '(\\.[0-9]{1,3}$)', "")
+  id <- stringr::str_replace(id, '(_[0-9]{1,3}$)', "")
   id
 }
 
@@ -85,6 +86,13 @@ process_staff_utilisation <- function(cost_model){
 #' @export
 add_staff_utilisation <- function(cost_model, staff_utilisation, rate_card) {
   cost_model$registered_modules$staff_utilisation <- list()
+
+  # Check that currency columns are numeric
+  stop_if_nonnumeric(rate_card, c("price_gbp_real","annual_percentage_increase_real"))
+
+  # Check that the date column is of type date
+  stop_if_not_date(staff_utilisation)
+
   cost_model$registered_modules$staff_utilisation$staff_utilisation <- staff_utilisation
   cost_model$registered_modules$staff_utilisation$rate_card <- rate_card
   cost_model$registered_modules$staff_utilisation$process_module <- process_staff_utilisation

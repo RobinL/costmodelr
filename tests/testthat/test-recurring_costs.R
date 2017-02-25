@@ -6,6 +6,7 @@ assumptions <- list(
     currency = "EUR",
     frequency = "month",
     first_date = "2016-02-01",
+    quantity = 1,
     growth_in_real_cost_percent_per_annum = 0,
     growth_in_real_cost_absolute_per_annum = 0,
     growth_in_quantity_percent_per_annum = 0,

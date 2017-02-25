@@ -35,7 +35,7 @@ test_that("stop_duplicated_dates", {
 test_that("get_xr", {
   expect_equal(get_xr("GBP"), 1.00)
   expect_equal(get_xr("EUR"), 0.85, tolerance=0.4)  #The exchange rate might change!!
-  expect_equal(get_xr("USD"), 0.8, tolerance=0.4) 
+  expect_equal(get_xr("USD"), 0.8, tolerance=0.4)
   expect_equal(get_xr("JPY"), 0.0072, tolerance=0.01)
 })
 
@@ -50,7 +50,7 @@ test_that("date_to_multiplier_percentage_growth", {
 })
 
 test_that("apply_percentage_growth_multiplier_to_df_col", {
-  df <- tibble::data_frame(date=as.Date(c("2017-01-01", "2018-01-01", "2019-01-01")), mycol=rep(1,3))              
+  df <- tibble::data_frame(date=as.Date(c("2017-01-01", "2018-01-01", "2019-01-01")), mycol=rep(1,3))
   df <- apply_percentage_growth_multiplier_to_df_col(df, 1, col_to_increase="mycol")
   vals <- df$mycol - c(1,2,4)
   for (i in vals) {
@@ -58,4 +58,6 @@ test_that("apply_percentage_growth_multiplier_to_df_col", {
   }
 
 })
+
+
 

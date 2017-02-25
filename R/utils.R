@@ -109,5 +109,25 @@ freq_multiplier = list("week" =  1/7,
                        "year" = 1/365.25)
 
 
+stop_if_nonnumeric <- function(df, col_names=NULL) {
+
+  if (is.null(col_names)) {
+    if (!(all(sapply(df, class) %in% c("numeric","integer","Date")))) {
+      stop("Your input data should have been numeric but contained some character columns, check for errornous characters like £, $ etc")
+    }
+  } else {
+    if (!(all(sapply(df, class)[col_names] %in% c("numeric","integer", "Date")))) {
+      stop("Your input data should have been numeric but contained some character columns, check for errornous characters like £, $ etc")
+    }
+  }
+}
+
+stop_if_not_date <- function(df, col_name="date") {
+  if (class(df[[col_name]]) != "Date") {
+    stop("You need to make sure that the date column is of class Date.  Use the format yyyy-mm-dd for dates, instead of alternatives like 01/01/2017")
+  }
+}
+
+
 
 

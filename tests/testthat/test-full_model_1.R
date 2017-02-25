@@ -5,7 +5,9 @@ test_that("test full example 1", {
 
     key_dates <- readr::read_csv(system.file("extdata", "key_dates_1.csv", package="costmodelr"), col_types=readr::cols())
     recurring_cost_assumptions =  readr::read_csv(system.file("extdata", "recurring_cost_1.csv", package="costmodelr"), col_types=readr::cols())
-    staff_utilisation <- readr::read_csv(system.file("extdata", "staff_utilisation_1.csv", package="costmodelr"), col_types=readr::cols())
+
+    expect_warning(staff_utilisation <- readr::read_csv(system.file("extdata", "staff_utilisation_1.csv", package="costmodelr"), col_types=readr::cols()))
+
     rate_card <- readr::read_csv(system.file("extdata", "rate_card_1.csv", package="costmodelr"), col_types=readr::cols())
 
     user_variable_costs <- readr::read_csv(system.file("extdata", "user_variable_costs_1.csv", package="costmodelr"), col_types=readr::cols())
@@ -20,13 +22,13 @@ test_that("test full example 1", {
     cost_model <- run_cost_model(cost_model)
 
     chunks <- do.call(rbind, cost_model$chunks)
-    
+
     chunks$cost <- chunks$price_gbp_real * chunks$quantity
     id_lookup <- do.call(rbind, cost_model$id_lookup)
-    
-    
 
-    all <- chunks %>% 
+
+
+    all <- chunks %>%
           dplyr::left_join(id_lookup)
 
     to_cast <- all[,c("date", "cost", "category_3")]

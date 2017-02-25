@@ -25,12 +25,14 @@ run_cost_model <- function(cost_model) {
   for (module in cost_model$registered_modules) {
     cost_model <- module$process_module(cost_model)
   }
-  
+
   cost_model$all_line_items <- do.call(rbind, cost_model$chunks)
   cost_model$all_ids <- do.call(rbind, cost_model$id_lookup)
 
   cost_model$cost_dataframe <- cost_model$all_line_items %>%
                                     dplyr::left_join(cost_model$all_ids, by="id")
+
+  cost_model$cost_dataframe$cost <- cost_model$cost_dataframe$quantity * cost_model$cost_dataframe$price_gbp_real
   cost_model
 }
 
