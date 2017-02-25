@@ -19,7 +19,8 @@ Imports:
   quantmod,
   stringr,
   readr,
-  reshape2
+  reshape2,
+  magrittr
 RoxygenNote: 6.0.1
 Roxygen: list(markdown = TRUE)
 Suggests: knitr,
