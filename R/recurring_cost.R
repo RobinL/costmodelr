@@ -11,12 +11,21 @@
 #' * growth_in_real_cost_absolute_per_annum
 #' * growth_in_quantity_percent_per_annum
 #' * growth_in_quantity_absolute_per_annum
+#' * quantity
 #' @param key_dates a key dates dataframe so the recurring costs have an end date
 #' @export
 get_recurring_cost_chunk <- function(assumption_list, key_dates) {
   al <- assumption_list
+
   if (al$growth_in_real_cost_absolute_per_annum != 0 & al$growth_in_real_cost_percent_per_annum !=0) {
     stop("Recurring costs must have either absolute or percentage growth, not both")
+  }
+
+  expected_cols <- c("price_in_original_currency_real", "currency", "frequency", "first_date", "quantity", "growth_in_real_cost_percent_per_annum", "growth_in_real_cost_absolute_per_annum", "growth_in_quantity_percent_per_annum", "growth_in_quantity_absolute_per_annum")
+
+  if (!(all(expected_cols %in% names(assumption_list)))) {
+      message <- paste(c("You are missing some fields.  Expecting the following: ", expected_cols), sep=", ")
+      stop(message)
   }
 
 

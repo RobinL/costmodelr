@@ -4,7 +4,7 @@
 \alias{get_xr}
 \title{Get the current exchange rate}
 \usage{
-get_xr(from, to)
+get_xr(from, to = "GBP")
 }
 \description{
 Get the current exchange rate

@@ -20,6 +20,7 @@ get_recurring_cost_chunk(assumption_list, key_dates)
 \item growth_in_real_cost_absolute_per_annum
 \item growth_in_quantity_percent_per_annum
 \item growth_in_quantity_absolute_per_annum
+\item quantity
 }}
 }
 \description{
