@@ -20,16 +20,26 @@ test_that("test full example 1", {
     cost_model <- run_cost_model(cost_model)
 
     chunks <- do.call(rbind, cost_model$chunks)
+    
+    chunks$cost <- chunks$price_gbp_real * chunks$quantity
     id_lookup <- do.call(rbind, cost_model$id_lookup)
+    
+    
+
+    all <- chunks %>% 
+          dplyr::left_join(id_lookup)
+
+    to_cast <- all[,c("date", "cost", "category_3")]
+
+    same_format_as_expected_output <- reshape2::dcast(to_cast, "date ~ category_3", sum, value.var = "cost",na.rm=TRUE)
+
+    expected_answer =  readr::read_csv(system.file("extdata", "expected_answer_1.csv", package="costmodelr"), col_types=readr::cols())
+    drop_cols <- colnames(expected_answer)[grepl("working",colnames(expected_answer))]
+    drop_cols <- c("date", drop_cols)
+    ea <- remove_named_cols_from_df(expected_answer, drop_cols)
+    total <- sum(colSums(ea, TRUE))
+
+    expect_equal(total, sum(chunks$cost),tolerance=0.01)  #Tolerance of 1 penny
+
 
 })
-
-
-
-chunks
-
-
-# devtools::document()
-# roxygen2::roxygenise()
-#  covr::package_coverage()
-# shine(package_coverage())

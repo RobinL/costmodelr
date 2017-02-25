@@ -23,8 +23,6 @@ get_staff_line_item <- function(col, staff_utilisation, rate_card, key_dates) {
 
   l <- as.list(rate_card[rate_card$id == rc_id,])
 
-
-
   this_staff_line_item$price_gbp_real <- l$price_gbp_real * freq_multiplier[[l$price_frequency]]
 
   # Finally interpolate foward
@@ -42,7 +40,7 @@ get_staff_line_item <- function(col, staff_utilisation, rate_card, key_dates) {
   this_staff_line_item
 }
 
-get_staff_line_item_id <- function(col, staff_utilisation, rate_card) {
+get_staff_line_item_id <- function(cost_model, col,rate_card) {
   cols_to_keep <- cost_model$id_join_columns
   id <- staff_u_id_to_rate_card_id(col)
   rate_card[rate_card$id==id,cols_to_keep]
@@ -71,7 +69,7 @@ process_staff_utilisation <- function(cost_model){
     this_li$id <- id
     new_chunks[[id]] <- this_li
 
-    this_id <- get_staff_line_item_id(col, staff_utilisation, rate_card)
+    this_id <- get_staff_line_item_id(cost_model, col, rate_card)
     this_id$id <- id
     new_ids[[id]] <- this_id
   }

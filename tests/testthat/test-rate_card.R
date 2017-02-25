@@ -1,29 +1,21 @@
 context("rate_card")
 
-# staff_utilisation <- tibble::data_frame(date = as.Date(c("2017-02-01", "2017-02-08", "2017-02-15")),
-#                                         TA.1 = c(0.5,1,0.5),
-#                                         TA.2 = c(0.5,1,0.5),
-#                                         PM = c(0.5,1,0.5))
-# write.csv(staff_utilisation, "inst/extdata/staff_utilisation_1.csv", row.names=FALSE)
-# readr::read_csv("inst/extdata/staff_utilisation_1.csv")
 
-staff_utilisation <- readr::read_csv(system.file("extdata", "staff_utilisation_1.csv", package="costmodelr"), col_types=readr::cols())
-
-# rate_card <- tibble::data_frame(id = c("TA", "PM"),
-#                                 price_gbp_real = c(140, 70),
-#                                 price_frequency = c("week", "week"),
-#                                 annual_percentage_increase_real = c(0.0,0.1)
-# )
-rate_card <- readr::read_csv(system.file("extdata", "rate_card_1.csv", package="costmodelr"), col_types=readr::cols())
-# write.csv(rate_card, "inst/extdata/rate_card_1.csv", row.names=FALSE)
+staff_utilisation <- tibble::data_frame(date = as.Date(c("2017-02-01", "2017-02-08", "2017-02-15")),
+                                        TA.1 = c(0.5,1,0.5),
+                                        TA.2 = c(0.5,1,0.5),
+                                        PM = c(0.5,1,0.5))
 
 
-test_that("staff_u_id_to_rate_card_id", {
-  expect_equal(staff_u_id_to_rate_card_id("TA.1"), "TA")
-  expect_equal(staff_u_id_to_rate_card_id("TA.12"), "TA")
-  expect_equal(staff_u_id_to_rate_card_id("TA1"), "TA1")
-  expect_equal(staff_u_id_to_rate_card_id("TA12"), "TA12")
-})
+rate_card <- tibble::data_frame(id = c("TA", "PM"),
+                                price_gbp_real = c(140, 70),
+                                price_frequency = c("week", "week"),
+                                annual_percentage_increase_real = c(0.0,0.1)
+)
+
+
+key_dates <- tibble::data_frame(date = as.Date(c("2017-01-01", "2017-01-03", "2018-03-01")),
+                                other = 1:3)
 
 test_that("expand_staff_utilisation_to_time_horizon", {
   staff_utilisation <- expand_staff_utilisation_to_time_horizon(staff_utilisation, key_dates)
@@ -48,17 +40,25 @@ test_that("get_staff_line_item", {
   expect_equal(sli[sli$date == as.Date("2018-01-01"),"price_gbp_real"][[1]], 11, tolerance=0.1)
 })
 
-test_that("get_all_staff_line_items", {
-  all <- get_all_staff_line_items(staff_utilisation, rate_card, key_dates)
+# Now run tests against the example data sets
+test_that("example 1", {
+    key_dates <- readr::read_csv(system.file("extdata", "key_dates_1.csv", package="costmodelr"), col_types=readr::cols())
+    staff_utilisation <- readr::read_csv(system.file("extdata", "staff_utilisation_1.csv", package="costmodelr"), col_types=readr::cols())
+    rate_card <- readr::read_csv(system.file("extdata", "rate_card_1.csv", package="costmodelr"), col_types=readr::cols())
 
-  # Same number of rows of each type
-  agg <- all %>%
-    dplyr::group_by(id) %>%
-    dplyr::summarise(count = n())
+    cost_model <- create_cost_model(key_dates)
 
-  expect_true(all(agg$count==425))
+    cost_model <- add_staff_utilisation(cost_model, staff_utilisation, rate_card)
 
+    cost_model <- run_cost_model(cost_model)
+    
+    cost_model$cost_dataframe
+
+    test_agg <- cost_model$cost_dataframe %>%
+      dplyr::group_by(id) %>%
+      dplyr::summarise(n = n())
+    
+    expect_true(all(test_agg$n == 10))
+
+    
 })
-
-
-
