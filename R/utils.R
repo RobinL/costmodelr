@@ -113,11 +113,11 @@ stop_if_nonnumeric <- function(df, col_names=NULL) {
 
   if (is.null(col_names)) {
     if (!(all(sapply(df, class) %in% c("numeric","integer","Date")))) {
-      stop("Your input data should have been numeric but contained some character columns, check for errornous characters like £, $ etc")
+      stop("Your input data should have been numeric but contained some character columns, check for errornous characters like \u00A3 $ etc")
     }
   } else {
     if (!(all(sapply(df, class)[col_names] %in% c("numeric","integer", "Date")))) {
-      stop("Your input data should have been numeric but contained some character columns, check for errornous characters like £, $ etc")
+      stop("Your input data should have been numeric but contained some character columns, check for errornous characters like \u00A3 $ etc")
     }
   }
 }
