@@ -3,6 +3,8 @@ context("Test oneoff assumptions")
 oneoff <- readr::read_csv(system.file("extdata", "oneoff_costs_1.csv", package="costmodelr"), col_types=readr::cols())
 key_dates <- readr::read_csv(system.file("extdata", "key_dates_1.csv", package="costmodelr"), col_types=readr::cols())
 
+oneoff <- convert_excel_dates_in_df(oneoff)
+key_dates <- convert_excel_dates_in_df(key_dates)
 
 
 test_that("One off costs example 1", {

@@ -99,6 +99,9 @@ process_recurring_costs <- function(cost_model) {
 #'
 #' @export
 add_recurring_cost <- function(cost_model, recurring_cost_assumptions) {
+
+  recurring_cost_assumptions <- convert_excel_dates_in_df(recurring_cost_assumptions)
+
   cost_model$registered_modules$recurring_cost <- list()
   recurring_cost_assumptions <- create_id_column(recurring_cost_assumptions, "rc_")
   cost_model$registered_modules$recurring_cost$assumptions <- recurring_cost_assumptions
