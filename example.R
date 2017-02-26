@@ -1,24 +1,23 @@
 
-
-
 key_dates <- readr::read_csv(system.file("extdata", "key_dates_1.csv", package="costmodelr"), col_types=readr::cols())
-staff_utilisation <- readr::read_csv(system.file("extdata", "staff_utilisation_1.csv", package="costmodelr"), col_types=readr::cols())
-rate_card <- readr::read_csv(system.file("extdata", "rate_card_1.csv", package="costmodelr"), col_types=readr::cols())
+uvc <- readr::read_csv(system.file("extdata", "user_variable_costs_1.csv", package="costmodelr"), col_types=readr::cols())
+users <- readr::read_csv(system.file("extdata", "users_1.csv", package="costmodelr"), col_types=readr::cols())
+uvc
 
-oneoff <- readr::read_csv(system.file("extdata", "oneoff_costs_1.csv", package="costmodelr"), col_types=readr::cols())
-oneoff
-this_row <- oneoff[1,]
-l <- as.list(this_row)
-l$id <- "id1"
-chunk <- get_oneoff_cost_chunk(l, key_dates)
-chunk
-colnames(chunk)
+users <- expand_to_time_horizon(users,key_dates)
+users <- interpolate_days_numeric(users)
+users
 
-chunk[["price_gbp_real"]]
+al <- as.list(uvc[4,])
+str(al)
 
-cost_model <- add_staff_utilisation(cost_model, staff_utilisation, rate_card)
+get_user_variable_costs_chunk(al, users, key_dates)
 
-cost_model <- run_cost_model(cost_model)
+df <- remove_named_cols_from_df(df, c("quantity_increase_per_user", "quantity_increase_per_user", "total_quantity_increase", "num_users"))
+df$price_gbp_real <- al$price_in_original_currency_real * get_xr(al$currency, "GBP") * freq_multiplier[[al$pricefrequency]]
+
+
+
 
 test_agg <- cost_model$cost_dataframe %>%
   dplyr::group_by(id) %>%

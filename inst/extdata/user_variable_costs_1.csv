@@ -1,3 +1,1 @@
-price_in_original_currency_real,currency,pricefrequency,first_date,growth_in_real_cost_percent_per_annum,growth_in_real_cost_absolute_per_annum,growth_in_quantity_absolute_per_annum_per_user,category_1,category_2,category_3
-60,GBP,month,2017-01-01,0,0,365.25,infrastructure,storage,amazon s3
-30,GBP,month,2017-01-01,0,0,730.5,infrastructure,compute,ec2
+price_in_original_currency_real,currency,pricefrequency,fixed_initial_quantity_per_user,growth_in_real_cost_percent_per_annum,growth_in_real_cost_absolute_per_annum,growth_in_quantity_absolute_per_annum_per_user,category_1,category_2,category_360,GBP,month,0,0,0,365.25,infrastructure,storage,amazon s330,GBP,month,0,0,0,730.5,infrastructure,compute,ec21,GBP,day,10,0,0,0,infrastructure,accounts,github14,GBP,week,100,1383.244275,0,365.25,infrastructure,storate,ebs

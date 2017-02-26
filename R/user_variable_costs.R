@@ -4,16 +4,27 @@
 get_user_variable_costs_chunk <- function(assumptions_list, users, key_dates) {
   al <- assumptions_list
   df <- users
-  df$quantity <- 0
-
   df$id <- al$id
 
+  df$quantity <- df$num_users * al$fixed_initial_quantity_per_user
   df$quantity_increase_per_user <- al$growth_in_quantity_absolute_per_annum_per_user/365.25
   df$total_quantity_increase <- df$quantity_increase_per_user * df$num_users
-  df$quantity <- cumsum(df$total_quantity_increase)
+  df$quantity <- df$quantity + cumsum(df$total_quantity_increase)
 
   df <- remove_named_cols_from_df(df, c("quantity_increase_per_user", "quantity_increase_per_user", "total_quantity_increase", "num_users"))
   df$price_gbp_real <- al$price_in_original_currency_real * get_xr(al$currency, "GBP") * freq_multiplier[[al$pricefrequency]]
+
+  # Increases in in price
+  if (al$growth_in_real_cost_percent_per_annum != 0) {
+    df <- apply_percentage_growth_multiplier_to_df_col(df,
+                                                       annual_growth=al$growth_in_real_cost_percent_per_annum,
+                                                       col_to_increase="price_gbp_real")
+  } else {
+    df <- apply_absolute_increase_to_df_col(df,
+                                            annual_increase=al$growth_in_real_cost_absolute_per_annum,
+                                            col_to_increase="price_gbp_real")
+  }
+
   df
 }
 
