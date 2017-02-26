@@ -122,6 +122,9 @@ add_staff_utilisation <- function(cost_model, staff_utilisation, rate_card) {
   # Check that the date column is of type date
   stop_if_not_date(staff_utilisation)
 
+  staff_utilisation <- convert_excel_dates_in_df(staff_utilisation)
+  rate_card <- convert_excel_dates_in_df(rate_card)
+
   cost_model$registered_modules$staff_utilisation$staff_utilisation <- staff_utilisation
   cost_model$registered_modules$staff_utilisation$rate_card <- rate_card
   cost_model$registered_modules$staff_utilisation$process_module <- process_staff_utilisation

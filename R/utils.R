@@ -93,6 +93,26 @@ apply_absolute_increase_to_df_col <- function(df, annual_increase, start_date, c
   df
 }
 
+#' Take a df with date information, and if there is data information in the format 01/01/2017 (Excel outputs this by default) convert to date and warn user
+#'
+#' @param cols is either a vector of column names, or NULL. If it's NULL, all columns will be scanned
+convert_excel_dates_in_df <- function(df, cols="date") {
+
+  if (is.null(cols)) {
+    cols = colnames(df)
+  }
+
+  for (col in cols) {
+    tt <- tryCatch(as.Date(lubridate::parse_date_time(df[[col]], c("dmy", "dmY"))), error=function(e) return(FALSE), warning=function(w) return(FALSE))
+    if (class(tt) == "Date" & class(df[[col]]) != "Date") {
+      message(paste("Converting column ", col, "to date.  Note, this guesses the format so if your dates are accidentally in mm/dd/yyyy you might have problems"))
+      df[[col]] <-  as.Date(lubridate::parse_date_time(df[[col]], c("dmy", "dmy")))
+    }
+  }
+  df
+
+
+}
 
 
 create_id_column <- function(df, prefix) {

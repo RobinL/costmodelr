@@ -1,4 +1,47 @@
 
+test_dates <-
+
+
+test_dates <- readr::read_csv(system.file("extdata", "test_dates.csv", package="costmodelr"), col_types=readr::cols())
+test_dates
+library(lubridate)
+library(costmodelr)
+
+as.Date(parse_date_time(test_dates$a, "dmy"))
+as.Date(parse_date_time(test_dates$date_usa, "dmy"))
+as.Date(parse_date_time(test_dates$date_longyear, c("dmy", "dmY")))
+
+as.Date(parse_date_time(test_dates$b, "dmy"))
+
+
+# convert_excel_dates_in_df <- function(df, cols="date") {
+#
+#   if (is.null(cols)) {
+#     cols = colnames(df)
+#   }
+#
+#   for (col in cols) {
+#     tt <- tryCatch(as.Date(parse_date_time(test_dates[[col]], c("dmy", "dmY"))), error=function(e) return(FALSE), warning=function(w) return(FALSE))
+#     if (class(tt) == "Date" & class(df[[col]]) != "Date") {
+#       message(paste("Converting column ", col, "to date.  Note, this guesses the format so if your dates are accidentally in mm/dd/yyyy you might have problems"))
+#      df[[col]] <-  as.Date(parse_date_time(test_dates[[col]], c("dmy", "dmy")))
+#     }
+#   }
+#   df
+#
+#
+# }
+
+df <- convert_excel_dates_in_df(test_dates, "a")
+
+a <- sapply(df, class)
+a
+names(a) <- NULL
+a
+dput(a)
+df
+
+
 key_dates <- readr::read_csv(system.file("extdata", "key_dates_1.csv", package="costmodelr"), col_types=readr::cols())
 uvc <- readr::read_csv(system.file("extdata", "user_variable_costs_1.csv", package="costmodelr"), col_types=readr::cols())
 users <- readr::read_csv(system.file("extdata", "users_1.csv", package="costmodelr"), col_types=readr::cols())
@@ -30,4 +73,5 @@ all(test_agg$n, 9)
 # shine(package_coverage())
 
 list(a=1, b=function(x) {return })
+
 

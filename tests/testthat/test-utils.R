@@ -60,4 +60,20 @@ test_that("apply_percentage_growth_multiplier_to_df_col", {
 })
 
 
+test_that("convert_excel_dates_in_df", {
+
+  test_dates <- readr::read_csv(system.file("extdata", "test_dates.csv", package="costmodelr"), col_types=readr::cols())
+
+  # Convert all columns.
+  df <- convert_excel_dates_in_df(test_dates, cols=NULL)
+  expect_true(all(sapply(df, "class") == c("Date", "Date", "character", "integer", "numeric", "character", "Date", "Date")))
+
+
+  df <- convert_excel_dates_in_df(test_dates, cols="a")
+
+
+  expect_true(all(sapply(df, "class") == c("Date", "character", "character", "integer", "numeric", "character", "Date", "character")))
+
+})
+
 

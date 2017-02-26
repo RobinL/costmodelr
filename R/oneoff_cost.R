@@ -55,6 +55,8 @@ process_oneoff_costs <- function(cost_model) {
 #' @export
 add_oneoff_costs <- function(cost_model, oneoff_cost_assumptions) {
   cost_model$registered_modules$oneoff_cost <- list()
+
+  oneoff_cost_assumptions <- convert_excel_dates_in_df(oneoff_cost_assumptions)
   oneoff_cost_assumptions <- create_id_column(oneoff_cost_assumptions, "oo_")
   cost_model$registered_modules$oneoff_cost$assumptions <- oneoff_cost_assumptions
   cost_model$registered_modules$oneoff_cost$process_module <- process_oneoff_costs

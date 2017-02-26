@@ -76,7 +76,11 @@ add_user_variable_costs <- function(cost_model, num_users, user_variable_cost_as
 
   cost_model$registered_modules$user_variable_cost <- list()
 
+  num_users <- convert_excel_dates_in_df(num_users)
+  user_variable_cost_assumptions <- convert_excel_dates_in_df(user_variable_cost_assumptions)
+
   cost_model$registered_modules$user_variable_cost$num_users <- num_users
+
 
   user_variable_cost_assumptions <- create_id_column(user_variable_cost_assumptions, "uvc_")
   cost_model$registered_modules$user_variable_cost$assumptions <- user_variable_cost_assumptions
