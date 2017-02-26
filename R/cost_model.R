@@ -22,6 +22,11 @@ create_cost_model <- function(key_dates) {
 #'
 #' @export
 run_cost_model <- function(cost_model) {
+
+  # Reset chunks and id lookup so we don't duplicate costs
+  cost_model$chunks <- list()
+  cost_model$id_lookup <- list()
+
   for (module in cost_model$registered_modules) {
     cost_model <- module$process_module(cost_model)
   }

@@ -22,6 +22,9 @@ test_that("test full example 1", {
     cost_model <- add_oneoff_costs(cost_model, oneoff)
     cost_model <- run_cost_model(cost_model)
 
+    # Deliberately re-run model to make sure this doesn't cause a problem
+    cost_model <- run_cost_model(cost_model)
+
     chunks <- do.call(rbind, cost_model$chunks)
 
     chunks$cost <- chunks$price_gbp_real * chunks$quantity
@@ -42,7 +45,9 @@ test_that("test full example 1", {
     ea <- remove_named_cols_from_df(expected_answer, drop_cols)
     total <- sum(colSums(ea, TRUE))
     expect_equal(sum(chunks$cost),total, tolerance=0.01, scale=1)  #Tolerance of 1 penny
- 
+
+
+
 
 })
 
