@@ -93,6 +93,12 @@ apply_absolute_increase_to_df_col <- function(df, annual_increase, start_date, c
   df
 }
 
+#' Take a df with date information, and if there is data information in the format 01/01/2017 (Excel outputs this by default) convert to date and warn user
+#'
+#' @param cols is either a vector of column names, or NULL. If it's NULL, all columns will be scanned
+convert_excel_dates_in_df <- function(df, cols=NULL) {
+
+}
 
 
 create_id_column <- function(df, prefix) {
