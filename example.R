@@ -28,3 +28,6 @@ all(test_agg$n, 9)
 # roxygen2::roxygenise()
 # covr::package_coverage()
 # shine(package_coverage())
+
+list(a=1, b=function(x) {return })
+
