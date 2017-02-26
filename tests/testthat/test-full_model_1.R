@@ -41,8 +41,9 @@ test_that("test full example 1", {
     drop_cols <- c("date", drop_cols)
     ea <- remove_named_cols_from_df(expected_answer, drop_cols)
     total <- sum(colSums(ea, TRUE))
-
-    expect_equal(total, sum(chunks$cost),tolerance=0.01)  #Tolerance of 1 penny
-
+    expect_equal(sum(chunks$cost),total, tolerance=0.01, scale=1)  #Tolerance of 1 penny
+ 
 
 })
+
+

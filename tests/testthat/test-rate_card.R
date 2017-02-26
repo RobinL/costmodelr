@@ -37,7 +37,7 @@ test_that("get_staff_line_item", {
 
   su_expanded <- expand_staff_utilisation_to_time_horizon(staff_utilisation, key_dates)
   sli <- get_staff_line_item("PM", su_expanded, rate_card, key_dates)
-  expect_equal(sli[sli$date == as.Date("2018-01-01"),"price_gbp_real"][[1]], 11, tolerance=0.1)
+  expect_equal(sli[sli$date == as.Date("2018-01-01"),"price_gbp_real"][[1]], 11, tolerance=0.1, scale=1)
 })
 
 rate_card <- tibble::data_frame(id = c("TA", "PM"),
