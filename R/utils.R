@@ -123,8 +123,9 @@ create_id_column <- function(df, prefix) {
   df
 }
 
-freq_multiplier = list("week" =  1/7,
+freq_multiplier = list("hour" = 24,
                        "day" = 1,
+                       "week" =  1/7,
                        "month" = 12/365.25,
                        "year" = 1/365.25)
 
