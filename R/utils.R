@@ -1,9 +1,9 @@
 #' Removed named columns from a dataframe
 #'
-#' @export
 remove_named_cols_from_df <- function(df, drops) {
   df[,!(names(df) %in% drops)]
 }
+
 #' Convert all datatime (posixt) columns to be dates.
 #'
 #' This is important because data joins on the datetime column can go wrong as a result of things like BST.

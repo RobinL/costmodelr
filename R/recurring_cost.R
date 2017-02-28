@@ -28,6 +28,11 @@ get_recurring_cost_chunk <- function(assumption_list, key_dates) {
       stop(message)
   }
 
+  # If the frequency is below daily, it needs to be converted to daily because recurring costs create a row each time they recur
+  if (al$frequency == "hour") {
+    al$frequency = "day"
+    al$price_in_original_currency_real = al$price_in_original_currency_real * 24
+  }
 
   rc_dates <- seq(al$first_date, to=kd_max(key_dates), by=al$frequency)
   df <- tibble::data_frame("date" = rc_dates, id=al$id)
@@ -100,7 +105,7 @@ process_recurring_costs <- function(cost_model) {
 #' @export
 add_recurring_cost <- function(cost_model, recurring_cost_assumptions) {
 
-  recurring_cost_assumptions <- convert_excel_dates_in_df(recurring_cost_assumptions)
+  recurring_cost_assumptions <- convert_excel_dates_in_df(recurring_cost_assumptions, cols = "first_date")
 
   cost_model$registered_modules$recurring_cost <- list()
   recurring_cost_assumptions <- create_id_column(recurring_cost_assumptions, "rc_")
