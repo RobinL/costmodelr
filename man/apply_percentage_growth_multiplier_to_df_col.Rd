@@ -9,6 +9,10 @@ apply_percentage_growth_multiplier_to_df_col(df, annual_growth, start_date,
 }
 \arguments{
 \item{annual_growth}{annual growth rate, where 0.1 = 10\%, -0.05 = -5\% etc.}
+
+\item{start_date}{If \code{this_date = start_date}, the multiplier will be 1}
+
+\item{this_date}{The date to compute a multiplier for.}
 }
 \description{
 Take a df with a date col, and generate a multiplier corresponding to growth or reduction at a constant percent

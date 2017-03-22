@@ -7,6 +7,10 @@
 date_to_multiplier_percentage_growth(this_date, start_date, annual_growth)
 }
 \arguments{
+\item{this_date}{The date to compute a multiplier for.}
+
+\item{start_date}{If \code{this_date = start_date}, the multiplier will be 1}
+
 \item{annual_growth}{annual growth rate, where 0.1 = 10\%, -0.05 = -5\% etc.}
 }
 \description{

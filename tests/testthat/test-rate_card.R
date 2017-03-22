@@ -42,7 +42,7 @@ test_that("get_staff_line_item", {
 
 rate_card <- tibble::data_frame(id = c("TA", "PM"),
                                 price_gbp_real = c(10, 50),
-                                price_frequency = c("day", "week"),
+                                price_frequency = c("working_day", "week"),
                                 annual_percentage_increase_real = c(0.0,0))
 
 staff_utilisation <- tibble::data_frame(date = as.Date(c("2017-01-01")),

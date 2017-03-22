@@ -1,60 +1,64 @@
+# install.packages("devtools")
+# install.packages("dplyr")
+# install.pacakges("lubridate")
+# install.packages("devtools")
+# install.package("readr)
+# library(devtools)
+# install_github("RobinL/costmodelr")
 
-test_dates <-
-
-
-test_dates <- readr::read_csv(system.file("extdata", "test_dates.csv", package="costmodelr"), col_types=readr::cols())
-test_dates
-library(lubridate)
+# detach("package:costmodelr", unload = TRUE)
 library(costmodelr)
-
-as.Date(parse_date_time(test_dates$a, "dmy"))
-as.Date(parse_date_time(test_dates$date_usa, "dmy"))
-as.Date(parse_date_time(test_dates$date_longyear, c("dmy", "dmY")))
-
-as.Date(parse_date_time(test_dates$b, "dmy"))
-
-
-
-df <- convert_excel_dates_in_df(test_dates, "a")
-
-a <- sapply(df, class)
-a
-names(a) <- NULL
-a
-dput(a)
-df
+library(dplyr)
+library(lubridate)
+library(readr)
 
 
 key_dates <- readr::read_csv(system.file("extdata", "key_dates_1.csv", package="costmodelr"), col_types=readr::cols())
-uvc <- readr::read_csv(system.file("extdata", "user_variable_costs_1.csv", package="costmodelr"), col_types=readr::cols())
+key_dates[1,1]
+recurring_costs =  readr::read_csv(system.file("extdata", "recurring_cost_1.csv", package="costmodelr"), col_types=readr::cols())
+
+staff_utilisation <- readr::read_csv(system.file("extdata", "staff_utilisation_1.csv", package="costmodelr"), col_types=readr::cols())
+
+rate_card <- readr::read_csv(system.file("extdata", "rate_card_1.csv", package="costmodelr"), col_types=readr::cols())
+
+user_variable_costs <- readr::read_csv(system.file("extdata", "user_variable_costs_1.csv", package="costmodelr"), col_types=readr::cols())
 users <- readr::read_csv(system.file("extdata", "users_1.csv", package="costmodelr"), col_types=readr::cols())
-uvc
 
-users <- expand_to_time_horizon(users,key_dates)
-users <- interpolate_days_numeric(users)
-users
-
-al <- as.list(uvc[4,])
-str(al)
-
-get_user_variable_costs_chunk(al, users, key_dates)
-
-df <- remove_named_cols_from_df(df, c("quantity_increase_per_user", "quantity_increase_per_user", "total_quantity_increase", "num_users"))
-df$price_gbp_real <- al$price_in_original_currency_real * get_xr(al$currency, "GBP") * freq_multiplier[[al$pricefrequency]]
+oneoff_costs <- readr::read_csv(system.file("extdata", "oneoff_costs_1.csv", package="costmodelr"), col_types=readr::cols())
 
 
 
 
-test_agg <- cost_model$cost_dataframe %>%
-  dplyr::group_by(id) %>%
-  dplyr::summarise(n = n())
-
-all(test_agg$n, 9)
-# devtools::document()
-# roxygen2::roxygenise()
-# covr::package_coverage()
-# shine(package_coverage())
-
-list(a=1, b=function(x) {return })
+cost_model <- add_oneoff_costs(cost_model, oneoff_costs)
+cost_model <- add_recurring_cost(cost_model, recurring_costs)
+cost_model <- run_cost_model(cost_model)
 
 
+
+cost_model$cost_dataframe
+
+
+write.csv(cost_model$cost_dataframe,file = "inst/extdata/vignette_example_target_data.csv")
+
+
+
+df <- cost_model$cost_dataframe %>%
+  select(cost, date) %>%
+  group_by(week = as.Date(cut(date, "week"))) %>%
+  summarise(cost = sum(cost))
+
+df
+
+# Break down total costs by category
+cost_model$cost_dataframe %>%
+  select(cost, category_1, category_2, category_3) %>%
+  group_by(category_1, category_2, category_3) %>%
+  summarise(cost = sum(cost))
+
+
+# Find max quantity in each category
+
+cost_model$cost_dataframe %>%
+  select(quantity, category_1, category_2, category_3) %>%
+  group_by(category_1, category_2, category_3) %>%
+  summarise(max_quantity = max(quantity))

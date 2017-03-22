@@ -1,10 +1,13 @@
+# Utils contains utility functions used throughout the model
+
 #' Removed named columns from a dataframe
 #'
 remove_named_cols_from_df <- function(df, drops) {
   df[,!(names(df) %in% drops)]
 }
 
-#' Convert all datatime (posixt) columns to be dates.
+
+#' Convert all datatime (posixt) columns to be dates in a dataframe
 #'
 #' This is important because data joins on the datetime column can go wrong as a result of things like BST.
 posixt_cols_to_date <- function(df) {
@@ -13,9 +16,10 @@ posixt_cols_to_date <- function(df) {
   df
 }
 
+
 #' Read a worksheet from an Excel file and convert to a tibble.
 #'
-#' This function also ensures that all relevant columns contains dates rather than datetimes.
+#' This function also ensures that all relevant columns contain dates rather than datetimes.
 #' @export
 read_worksheet_from_file_and_tidy <- function(path, sheetname) {
   df <- XLConnect::readWorksheetFromFile(path, sheetname)
@@ -25,17 +29,15 @@ read_worksheet_from_file_and_tidy <- function(path, sheetname) {
 
 #' Check that there aren't any duplicated dates
 #'
-#' @export
 stop_duplicated_dates <- function(df, date_col = 'date') {
   if (any(duplicated(df[[date_col]]))) {
     stop("There seem to be duplicated rows in your dataframe (i.e. multiple rows for a single date")
   }
-
 }
 
 #' Get the current exchange rate
 #'
-#'@export
+#' This is memoised because otherwise we have to make frequent API calls which slows everything down.
 get_xr <- memoise::memoise(function(from,to="GBP") {
   if (from == "GBP") {
     return(1.00)
@@ -45,10 +47,12 @@ get_xr <- memoise::memoise(function(from,to="GBP") {
   xr
 })
 
+
 #' Convert a date into a multiplier for costs, where costs are growing or shrinking
 #'
+#' @param this_date The date to compute a multiplier for.
+#' @param start_date If `this_date = start_date`, the multiplier will be 1
 #' @param annual_growth annual growth rate, where 0.1 = 10\%, -0.05 = -5\% etc.
-#' @export
 date_to_multiplier_percentage_growth <- function(this_date, start_date, annual_growth) {
   daily_growth <- (1 + annual_growth)^(1/365.25)
   date_multiplier <- daily_growth^(as.double(this_date - start_date))
@@ -58,8 +62,9 @@ date_to_multiplier_percentage_growth <- function(this_date, start_date, annual_g
 
 #' Take a df with a date col, and generate a multiplier corresponding to growth or reduction at a constant percent
 #'
+#' @param this_date The date to compute a multiplier for.
+#' @param start_date If `this_date = start_date`, the multiplier will be 1
 #' @param annual_growth annual growth rate, where 0.1 = 10\%, -0.05 = -5\% etc.
-#' @export
 apply_percentage_growth_multiplier_to_df_col <- function(df, annual_growth, start_date, col_to_increase, date_col = "date") {
     if (missing(start_date)) {
       start_date <- min(df[[date_col]])
@@ -70,14 +75,15 @@ apply_percentage_growth_multiplier_to_df_col <- function(df, annual_growth, star
     df
 }
 
-#' Convert a date into a multiplier for costs, where costs are growing or shrinking by an absolute amount
+
+#' Convert a date into an increase in cost, where costs are growing or shrinking by an absolute amount
 #'
 #' @param annual_increase absolute annual increase
-#' @export
 date_to_addition_absolute_increase <- function(this_date, start_date, annual_increase) {
   daily_increase <- annual_increase/365.25
   absolute_addition <- daily_increase*(as.double(this_date - start_date))
 }
+
 
 #' Take a df with a date col, and apply a constant rate of increase to a column
 #'
@@ -93,7 +99,8 @@ apply_absolute_increase_to_df_col <- function(df, annual_increase, start_date, c
   df
 }
 
-#' Take a df with date information, and if there is data information in the format 01/01/2017 (Excel outputs this by default) convert to date and warn user
+
+#' Take a df with date information, and if there is data information in the format 30/01/17 or 30/01/2017 (Excel outputs this by default) convert to date and warn user
 #'
 #' @param cols is either a vector of column names, or NULL. If it's NULL, all columns will be scanned
 convert_excel_dates_in_df <- function(df, cols="date") {
@@ -114,7 +121,8 @@ convert_excel_dates_in_df <- function(df, cols="date") {
 
 }
 
-
+#' Create a id column, which is unique per ro
+#'
 create_id_column <- function(df, prefix) {
   if ("id" %in% colnames(df)) {
     stop("Error in creating unique id column.  There's already a column called id")
@@ -123,13 +131,17 @@ create_id_column <- function(df, prefix) {
   df
 }
 
+# The freq_multipler is used to convert prices which are quoted at different time intervals
 freq_multiplier = list("hour" = 24,
                        "day" = 1,
+                       "working_day" = 5/7,
                        "week" =  1/7,
                        "month" = 12/365.25,
                        "year" = 1/365.25)
 
 
+#' Stop data processing if df contains non-numeric data
+#'
 stop_if_nonnumeric <- function(df, col_names=NULL) {
 
   if (is.null(col_names)) {
@@ -143,15 +155,19 @@ stop_if_nonnumeric <- function(df, col_names=NULL) {
   }
 }
 
+#' Stop data processing if the date column is not of type Date
+#'
 stop_if_not_date <- function(df, col_name="date") {
   if (class(df[[col_name]]) != "Date") {
     stop("You need to make sure that the date column is of class Date.  Use the format yyyy-mm-dd for dates, instead of alternatives like 01/01/2017")
   }
 }
 
-stop_expected_fields <- function(fields, this_list) {
-  if (!(all(fields %in% names(this_list)))) {
-    message <- paste(c("You are missing some fields.  Expecting the following: ", fields), sep=", ")
+#' Stop if the list provided does not contains all the expected fields
+#'
+stop_expected_fields <- function(expected_fields, this_list) {
+  if (!(all(expected_fields %in% names(this_list)))) {
+    message <- paste(c("You are missing some fields.  Expecting the following: ", expected_fields), sep=", ")
     stop(message)
   }
 }

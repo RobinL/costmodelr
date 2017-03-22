@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{convert_excel_dates_in_df}
 \alias{convert_excel_dates_in_df}
-\title{Take a df with date information, and if there is data information in the format 01/01/2017 (Excel outputs this by default) convert to date and warn user}
+\title{Take a df with date information, and if there is data information in the format 30/01/17 or 30/01/2017 (Excel outputs this by default) convert to date and warn user}
 \usage{
 convert_excel_dates_in_df(df, cols = "date")
 }
@@ -10,5 +10,5 @@ convert_excel_dates_in_df(df, cols = "date")
 \item{cols}{is either a vector of column names, or NULL. If it's NULL, all columns will be scanned}
 }
 \description{
-Take a df with date information, and if there is data information in the format 01/01/2017 (Excel outputs this by default) convert to date and warn user
+Take a df with date information, and if there is data information in the format 30/01/17 or 30/01/2017 (Excel outputs this by default) convert to date and warn user
 }

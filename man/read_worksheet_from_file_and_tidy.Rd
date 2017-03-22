@@ -7,5 +7,5 @@
 read_worksheet_from_file_and_tidy(path, sheetname)
 }
 \description{
-This function also ensures that all relevant columns contains dates rather than datetimes.
+This function also ensures that all relevant columns contain dates rather than datetimes.
 }

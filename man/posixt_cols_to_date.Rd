@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{posixt_cols_to_date}
 \alias{posixt_cols_to_date}
-\title{Convert all datatime (posixt) columns to be dates.}
+\title{Convert all datatime (posixt) columns to be dates in a dataframe}
 \usage{
 posixt_cols_to_date(df)
 }

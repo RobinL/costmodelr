@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{date_to_addition_absolute_increase}
 \alias{date_to_addition_absolute_increase}
-\title{Convert a date into a multiplier for costs, where costs are growing or shrinking by an absolute amount}
+\title{Convert a date into an increase in cost, where costs are growing or shrinking by an absolute amount}
 \usage{
 date_to_addition_absolute_increase(this_date, start_date, annual_increase)
 }
@@ -10,5 +10,5 @@ date_to_addition_absolute_increase(this_date, start_date, annual_increase)
 \item{annual_increase}{absolute annual increase}
 }
 \description{
-Convert a date into a multiplier for costs, where costs are growing or shrinking by an absolute amount
+Convert a date into an increase in cost, where costs are growing or shrinking by an absolute amount
 }

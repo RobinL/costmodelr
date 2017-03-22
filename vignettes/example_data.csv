@@ -1,0 +1,6 @@
+date,id,quantity,price_gbp_real,category_1,category_2,category_3,cost
+2017-01-01,oo_1,2,1000,Hardware,Macbooks,Macbook Air,2000
+2017-01-01,oo_3,7.0,2000,Licencing,Software,ETL,14000
+2017-02-01,rc_3,1.0,4.8066,Infrastructure,AWS,EC2,4.8066
+2017-02-01,sc_1,2.0,500,Staff,AWS,Technical,1000
+2017-02-01,sc_2,2.0,500,Staff,AWS,Technical,1000

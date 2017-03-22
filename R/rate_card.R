@@ -43,11 +43,12 @@ get_staff_line_item <- function(col, staff_utilisation, rate_card, key_dates) {
   l <- as.list(rate_card[rate_card$id == rc_id,])
 
   if (l$price_frequency == "day") {
-    f_mult <- 5/7
+    message("Day rates are being applied 7 days a week, if you need them applied 5 days a week use a price frequency of 'working_day' in your rate card table")
 
-  } else {
-    f_mult <- freq_multiplier[[l$price_frequency]]
   }
+
+  f_mult <- freq_multiplier[[l$price_frequency]]
+
 
   this_staff_line_item$price_gbp_real <- l$price_gbp_real * f_mult
 

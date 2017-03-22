@@ -7,5 +7,5 @@
 get_xr(from, to = "GBP")
 }
 \description{
-Get the current exchange rate
+This is memoised because otherwise we have to make frequent API calls which slows everything down.
 }
