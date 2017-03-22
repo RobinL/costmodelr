@@ -6,6 +6,8 @@
 
 This repo contains a framework for cost modelling in R.
 
+The most up to date documentation can be found in the package vignette, which you can access in R by typing `browseVignettes("costmodelr")`
+
 It is based around several ideas:
 
 * A cost model is usually made up of many different types of costs, each one of which will be referred to as a 'line item'.  Examples include the cost of buying capital equipment, costs for a member of staff, recurring licencing fees etc.
