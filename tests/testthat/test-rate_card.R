@@ -62,10 +62,9 @@ key_dates <- tibble::data_frame(date = as.Date(c("2017-01-01", "2017-01-07")),
 
 test_that("day rates adjust for work week", {
   su_expanded <- expand_staff_utilisation_to_time_horizon(staff_utilisation, key_dates)
-
   sli1 <- get_staff_line_item("TA", su_expanded, rate_card, key_dates)
   sli2 <- get_staff_line_item("PM", su_expanded, rate_card, key_dates)
-  expect_true(all.equal(sli1$price_in_original_currency,  sli2$price_in_original_currency))
+  expect_true(all.equal(sli1$price_gbp,  sli2$price_gbp))
 
 })
 
