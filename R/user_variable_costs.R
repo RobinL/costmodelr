@@ -32,7 +32,7 @@ get_user_variable_costs_chunk <- function(assumptions_list, users, key_dates) {
 #'
 #'
 get_user_variable_costs_id <- function(assumption_list, cost_model) {
-  cols_to_keep <- cost_model$id_join_columns
+  cols_to_keep <- cost_model$categorisation_columns
   l <- assumption_list[cols_to_keep]
   tibble::as_data_frame(l)
 

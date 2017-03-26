@@ -18,7 +18,7 @@ get_oneoff_cost_chunk <- function(assumption_list, key_dates) {
 }
 
 get_oneoff_cost_id <- function(assumption_list, cost_model) {
-  cols_to_keep <- cost_model$id_join_columns
+  cols_to_keep <- cost_model$categorisation_columns
   l <- assumption_list[cols_to_keep]
   tibble::as_data_frame(l)
 

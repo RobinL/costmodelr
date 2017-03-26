@@ -1,1 +1,4 @@
-price_in_original_currency_real,currency,quantity,date,category_1,category_2,category_3,Description,Source50,GBP,4,02/01/17,a,b,c,abc,x100,GBP,2,04/01/17,a,b,d,acbd,y150,GBP,1,10/01/17,b,b,d,bbd,z
+price_in_original_currency,real_or_nominal,currency,quantity,date,category_1,category_2,category_3,Description,Source
+50,real,GBP,4,02/01/17,a,b,c,abc,x
+100,real,GBP,2,04/01/17,a,b,d,acbd,y
+150,real,GBP,1,10/01/17,b,b,d,bbd,z

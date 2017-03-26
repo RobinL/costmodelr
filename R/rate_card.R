@@ -68,7 +68,7 @@ get_staff_line_item <- function(col, staff_utilisation, rate_card, key_dates) {
 }
 
 get_staff_line_item_id <- function(cost_model, col,rate_card) {
-  cols_to_keep <- cost_model$id_join_columns
+  cols_to_keep <- cost_model$categorisation_columns
   id <- staff_u_id_to_rate_card_id(col)
   rate_card[rate_card$id==id,cols_to_keep]
 

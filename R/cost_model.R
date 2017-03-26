@@ -1,7 +1,6 @@
 #' Create the cost model, a list that stores the various elements of the model
 #'
 #' @export
-
 create_cost_model <- function(key_dates) {
   cost_model <- list()
   cost_model$chunks <- list()
@@ -9,7 +8,7 @@ create_cost_model <- function(key_dates) {
   cost_model$key_dates <- key_dates
 
   # A vector of the columns we want to join onto the 'chunks' of the cost model for e.g. breaking down costs by category
-  cost_model$id_join_columns <- c(paste0("category_", 1:3), "id")
+  cost_model$categorisation_columns <- c(paste0("category_", 1:3), "id")
 
   #A list of all of the types of assumption (fixed cost, recurring cost, staff utilisation etc.) assumptions which have been registered
   cost_model$registered_modules <- list()

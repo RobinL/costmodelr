@@ -65,7 +65,13 @@ test_that("interpolate_days_numeric", {
 })
 
 
+test_that("growth interpolation", {
 
+  a <- constant_growth_interpolation(c(1,rep(NA,8),10))
+  g <- na.omit(a/lag(a))
+  testthat::expect_true(all.equal(max(g), min(g)))
+
+})
 
 
 

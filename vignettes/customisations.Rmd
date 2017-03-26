@@ -1,0 +1,18 @@
+---
+title: "Customising and extending your cost model"
+author: "Robin Linacre"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Example of simple cost model}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Introduction
+
+This vignette illustrates how to customise and extend your cost model.
+
+## Package basics
+
+

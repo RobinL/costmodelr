@@ -80,3 +80,12 @@ interpolate_days_character <- function(df, date_col="date", interpolation_fn = z
 interpolate_days_numeric <- function(df, date_col="date", interpolation_fn = zoo::na.approx) {
   interpolate_days(df, date_col=date_col, interpolation_fn=interpolation_fn, col_type=is.numeric)
 }
+
+#' Take a vector and interpolate over the NAs with constant growth
+#'
+#' @export
+constant_growth_interpolation <- function(vector_with_nas) {
+  lv <- log(vector_with_nas)
+  lv_interp <- zoo::na.approx(lv)
+  exp(lv_interp)
+}
