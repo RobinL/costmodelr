@@ -27,7 +27,7 @@ test_that("test full example 1", {
 
     chunks <- do.call(rbind, cost_model$chunks)
 
-    chunks$cost <- chunks$price_gbp_real * chunks$quantity
+    chunks$cost <- chunks$price_gbp * chunks$quantity
     id_lookup <- do.call(rbind, cost_model$id_lookup)
 
 

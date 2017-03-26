@@ -13,7 +13,7 @@ test_that("User varible costs example 1", {
 
   chunk <- get_user_variable_costs_chunk(al, users, key_dates)
 
-  expect_true(all.equal(2*1.02^(0:9),chunk$price_gbp_real))
+  expect_true(all.equal(2*1.02^(0:9),chunk$price_gbp))
 
   expect_true(all.equal(c(101, 102, 103, 104, 105, 106, 208, 210, 212, 214), chunk$quantity))
 
