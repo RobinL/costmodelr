@@ -17,7 +17,7 @@ get_gdp_deflator_series <- function(base_date=NULL, url="https://www.ons.gov.uk/
       rebase_value <- rebase_value[[1,1]]
       gdp_deflator_raw$gdp_deflator <- gdp_deflator_raw$gdp_deflator / rebase_value
     },
-      error = function(e) {stop("Please provide a valid base date.  Must be of type date and match one of the dates in the GDP deflator series.")}
+    error = function(e) {stop("Please provide a valid base date.  Must be of type date and match one of the dates in the GDP deflator series.")}
     )
 
   }
@@ -86,7 +86,6 @@ add_greenbook_discount <- function(gdp_deflator_df,green_book_discount_rate = 0.
 get_gdp_deflator_for_all_days <- function(start_date = as.Date("2017-01-01"), end_date = as.Date("2020-01-01"),
                                           base_date=NULL, future_gdp_deflator = 0.02, green_book_discount_rate = 0.035) {
 
-
   gdp_deflator_series <- get_gdp_deflator_series()
 
   range_d <- range(gdp_deflator_series$date)
@@ -103,6 +102,26 @@ get_gdp_deflator_for_all_days <- function(start_date = as.Date("2017-01-01"), en
 
   df_inc_greenbook_discount <- add_greenbook_discount(expanded)
 
+  # If base_date isn't null, attempt to rebase the series to 100 at the given base_date
+  if (!is.null(base_date)) {
+
+    rebase_values <- df_inc_greenbook_discount %>%
+      filter(date == base_date) %>%
+      select(gdp_deflator, green_book_discount)
+
+
+    tryCatch({
+      rebase_value_gdp <- rebase_values$gdp_deflator[[1]]
+      rebase_value_gb <- rebase_values$green_book_discount[[1]]
+
+      df_inc_greenbook_discount$gdp_deflator <- (df_inc_greenbook_discount$gdp_deflator / rebase_value_gdp) * 100
+      df_inc_greenbook_discount$green_book_discount <- (df_inc_greenbook_discount$green_book_discount / rebase_value_gb) * 100
+
+    },
+    error = function(e) {stop("Please provide a valid base date.  Must be of type date and match one of the dates in the GDP deflator series.")}
+    )
+  }
+
   df_inc_greenbook_discount <- df_inc_greenbook_discount %>%
     filter(date >= start_date) %>%
     filter(date <= end_date)
@@ -117,5 +136,5 @@ get_gdp_deflator_for_all_days <- function(start_date = as.Date("2017-01-01"), en
 }
 
 
-get_gdp_deflator_for_all_days(start_date <- as.Date("2015-05-01"))
+get_gdp_deflator_for_all_days(start_date = as.Date("2015-05-01"), end_date = as.Date("2015-05-03"), base_date = as.Date("2015-05-02"))
 
