@@ -17,11 +17,11 @@
 get_recurring_cost_chunk <- function(assumption_list, key_dates) {
   al <- assumption_list
 
-  if (al$growth_in_real_cost_absolute_per_annum != 0 & al$growth_in_real_cost_percent_per_annum !=0) {
+  if (al$growth_in_cost_absolute_per_annum != 0 & al$growth_in_cost_percent_per_annum !=0) {
     stop("Recurring costs must have either absolute or percentage growth, not both")
   }
 
-  expected_cols <- c("price_in_original_currency_real", "currency", "frequency", "first_date", "quantity", "growth_in_real_cost_percent_per_annum", "growth_in_real_cost_absolute_per_annum", "growth_in_quantity_percent_per_annum", "growth_in_quantity_absolute_per_annum")
+  expected_cols <- c("price_in_original_currency", "real_or_nominal", "currency", "frequency", "first_date", "quantity", "growth_in_cost_percent_per_annum", "growth_in_cost_absolute_per_annum", "growth_in_quantity_percent_per_annum", "growth_in_quantity_absolute_per_annum")
 
   if (!(all(expected_cols %in% names(assumption_list)))) {
       message <- paste(c("You are missing some fields.  Expecting the following: ", expected_cols), sep=", ")
@@ -31,29 +31,30 @@ get_recurring_cost_chunk <- function(assumption_list, key_dates) {
   # If the frequency is below daily, it needs to be converted to daily because recurring costs create a row each time they recur
   if (al$frequency == "hour") {
     al$frequency = "day"
-    al$price_in_original_currency_real = al$price_in_original_currency_real * 24
+    al$price_in_original_currency = al$price_in_original_currency * 24
   }
 
   rc_dates <- seq(al$first_date, to=kd_max(key_dates), by=al$frequency)
   df <- tibble::data_frame("date" = rc_dates, id=al$id)
 
-  df$price_gbp_real <- al$price_in_original_currency_real * get_xr(al$currency, "GBP")
+  df$price_gbp <- al$price_in_original_currency * get_xr(al$currency, "GBP")
+  df$real_or_nominal <- al$real_or_nominal
   df$quantity <- al$quantity
 
   # Increases in in price
-  if (al$growth_in_real_cost_percent_per_annum != 0) {
+  if (al$growth_in_cost_percent_per_annum != 0) {
     df <- apply_percentage_growth_multiplier_to_df_col(df,
-                                                       annual_growth=al$growth_in_real_cost_percent_per_annum,
-                                                       col_to_increase="price_gbp_real")
+                                                       annual_growth=al$growth_in_cost_percent_per_annum,
+                                                       col_to_increase="price_gbp")
   } else {
     df <- apply_absolute_increase_to_df_col(df,
-                                            annual_increase=al$growth_in_real_cost_absolute_per_annum,
-                                            col_to_increase="price_gbp_real")
+                                            annual_increase=al$growth_in_cost_absolute_per_annum,
+                                            col_to_increase="price_gbp")
   }
 
 
   # Increases in in quantity
-  if (al$growth_in_real_cost_percent_per_annum != 0) {
+  if (al$growth_in_cost_percent_per_annum != 0) {
     df <- apply_percentage_growth_multiplier_to_df_col(df,
                                                        annual_growth=al$growth_in_quantity_percent_per_annum,
                                                        col_to_increase="quantity")

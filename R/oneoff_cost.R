@@ -6,12 +6,12 @@
 get_oneoff_cost_chunk <- function(assumption_list, key_dates) {
   al <- assumption_list
 
-  expected_cols <- c( "price_in_original_currency_real", "currency", "quantity", "date")
+  expected_cols <- c( "price_in_original_currency", "currency", "quantity", "date")
   stop_expected_fields(expected_cols, assumption_list)
 
-  al$price_gbp_real <- al$price_in_original_currency_real * get_xr(al$currency, "GBP")
+  al$price_gbp <- al$price_in_original_currency * get_xr(al$currency, "GBP")
 
-  return_columns <- c("date", "id", "quantity", "price_gbp_real")
+  return_columns <- c("date", "id", "quantity", "price_gbp", "real_or_nominal")
   al <- al[return_columns]
   tibble::as_data_frame(al)
 

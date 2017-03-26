@@ -49,9 +49,11 @@ get_staff_line_item <- function(col, staff_utilisation, rate_card, key_dates) {
 
   f_mult <- freq_multiplier[[l$price_frequency]]
 
+  l$price_gbp <- l$price_in_original_currency * get_xr(l$currency, "GBP")
 
-  this_staff_line_item$price_gbp_real <- l$price_gbp_real * f_mult
 
+  this_staff_line_item$price_gbp <- l$price_gbp * f_mult
+  this_staff_line_item$real_or_nominal <- l$real_or_nominal
   # Finally interpolate foward
   chars <- interpolate_days_character(this_staff_line_item, interpolation_fn =  zoo::na.locf)
   nums <- interpolate_days_numeric(this_staff_line_item, interpolation_fn =  zoo::na.locf)
@@ -61,9 +63,9 @@ get_staff_line_item <- function(col, staff_utilisation, rate_card, key_dates) {
 
   # Finally add growth
   this_staff_line_item <- apply_percentage_growth_multiplier_to_df_col(this_staff_line_item,
-                                               annual_growth = l$annual_percentage_increase_real,
+                                               annual_growth = l$annual_percentage_increase,
                                                start_date = kd_min(key_dates),
-                                               col_to_increase = "price_gbp_real")
+                                               col_to_increase = "price_gbp")
   this_staff_line_item
 }
 
@@ -118,7 +120,7 @@ add_staff_utilisation <- function(cost_model, staff_utilisation, rate_card) {
   cost_model$registered_modules$staff_utilisation <- list()
 
   # Check that currency columns are numeric
-  stop_if_nonnumeric(rate_card, c("price_gbp_real","annual_percentage_increase_real"))
+  stop_if_nonnumeric(rate_card, c("price_in_original_currency","annual_percentage_increase"))
 
   # Check that the date column is of type date
   stop_if_not_date(staff_utilisation)

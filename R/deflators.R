@@ -1,17 +1,19 @@
 
 get_gdp_deflator_series <- function(base_date=NULL, url="https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/l8gg/qna") {
 
-  skips <- which(str_detect(lines, "1955 Q1")) - 1
+  lines = readr::read_lines(url)
 
-  gdp_deflator_raw <- readr::read_csv(url, skip = skips, col_names = c("date", "gdp_deflator"), col_types = cols())
+  skips <- which(stringr::str_detect(lines, "1955 Q1")) - 1
+
+  gdp_deflator_raw <- readr::read_csv(url, skip = skips, col_names = c("date", "gdp_deflator"), col_types = readr::cols())
   gdp_deflator_raw$date <- lubridate::as_date(lubridate::parse_date_time(gdp_deflator_raw$date, orders="yq"))
 
   # If base_date isn't null, attempt to rebase the series to 100 at the given base_date
   if (!is.null(base_date)) {
 
     rebase_value <- gdp_deflator_raw %>%
-      filter(date == base_date) %>%
-      select(gdp_deflator)
+      dplyr::filter(date == base_date) %>%
+      dplyr::select(gdp_deflator)
 
     tryCatch({
       rebase_value <- rebase_value[[1,1]]
@@ -51,8 +53,8 @@ add_future_values_to_gdp_deflator <- function(gdp_deflator_series, end_date = as
 get_base_date <- function(gdp_deflator_df) {
 
   cell <- gdp_deflator_df %>%
-    mutate(close = abs(gdp_deflator-100)) %>%
-    arrange(close) %>%
+    dplyr::mutate(close = abs(gdp_deflator-100)) %>%
+    dplyr::arrange(close) %>%
     head(n=1)
 
   cell[[1,1]]
@@ -68,16 +70,16 @@ add_greenbook_discount <- function(gdp_deflator_df,green_book_discount_rate = 0.
   gbr <- green_book_discount_rate + 1
 
   gdp_deflator_df <- gdp_deflator_df %>%
-    mutate(n = row_number()) %>%
-    mutate(green_book_discount = (gbr^(1/356.25))^(n))
+    dplyr::mutate(n = row_number()) %>%
+    dplyr::mutate(green_book_discount = (gbr^(1/356.25))^(n))
 
   rebase <- (gdp_deflator_df %>%
-               filter(date == base_date) %>%
-               select(green_book_discount))[[1]]
+               dplyr::filter(date == base_date) %>%
+               dplyr::select(green_book_discount))[[1]]
 
   gdp_deflator_df <- gdp_deflator_df %>%
-    mutate(green_book_discount = (green_book_discount/rebase)*100) %>%
-    select(-n)
+    dplyr::mutate(green_book_discount = (green_book_discount/rebase)*100) %>%
+    dplyr::select(-n)
 
   gdp_deflator_df
 
@@ -98,7 +100,7 @@ get_gdp_deflator_for_all_days <- function(start_date = as.Date("2017-01-01"), en
   expanded <- get_all_dates_df(gdp_deflator_series)
 
   expanded <- expanded %>%
-    mutate(gdp_deflator = constant_growth_interpolation(gdp_deflator))
+    dplyr::mutate(gdp_deflator = constant_growth_interpolation(gdp_deflator))
 
   df_inc_greenbook_discount <- add_greenbook_discount(expanded)
 
@@ -106,8 +108,8 @@ get_gdp_deflator_for_all_days <- function(start_date = as.Date("2017-01-01"), en
   if (!is.null(base_date)) {
 
     rebase_values <- df_inc_greenbook_discount %>%
-      filter(date == base_date) %>%
-      select(gdp_deflator, green_book_discount)
+      dplyr::filter(date == base_date) %>%
+      dplyr::select(gdp_deflator, green_book_discount)
 
 
     tryCatch({
@@ -123,18 +125,18 @@ get_gdp_deflator_for_all_days <- function(start_date = as.Date("2017-01-01"), en
   }
 
   df_inc_greenbook_discount <- df_inc_greenbook_discount %>%
-    filter(date >= start_date) %>%
-    filter(date <= end_date)
+    dplyr::filter(date >= start_date) %>%
+    dplyr::filter(date <= end_date)
 
   # Finally turn into a divisor
   df_inc_greenbook_discount <- df_inc_greenbook_discount %>%
-    mutate(green_book_discount = green_book_discount/100) %>%
-    mutate(gdp_deflator = gdp_deflator/100)
+    dplyr::mutate(green_book_discount = green_book_discount/100) %>%
+    dplyr::mutate(gdp_deflator = gdp_deflator/100)
 
   df_inc_greenbook_discount
 
 }
 
 
-get_gdp_deflator_for_all_days(start_date = as.Date("2015-05-01"), end_date = as.Date("2015-05-03"), base_date = as.Date("2015-05-02"))
+# get_gdp_deflator_for_all_days(start_date = as.Date("2015-05-01"), end_date = as.Date("2015-05-03"), base_date = as.Date("2015-05-02"))
 

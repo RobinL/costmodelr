@@ -7,6 +7,7 @@ create_cost_model <- function(key_dates) {
   cost_model$id_lookup <- list()
   cost_model$key_dates <- key_dates
 
+
   # A vector of the columns we want to join onto the 'chunks' of the cost model for e.g. breaking down costs by category
   cost_model$categorisation_columns <- c(paste0("category_", 1:3), "id")
 
@@ -17,12 +18,12 @@ create_cost_model <- function(key_dates) {
 }
 
 
-#' Run the cost model - by iterating through all the registered modules
+#' Run the cost model, by iterating through all the registered modules
 #'
 #' @export
 run_cost_model <- function(cost_model) {
 
-  # Reset chunks and id lookup so we don't duplicate costs
+  # Reset chunks and id lookup so we don't duplicate costs if we've called run_cost_model_before
   cost_model$chunks <- list()
   cost_model$id_lookup <- list()
 
@@ -36,7 +37,11 @@ run_cost_model <- function(cost_model) {
   cost_model$cost_dataframe <- cost_model$all_line_items %>%
                                     dplyr::left_join(cost_model$all_ids, by="id")
 
-  cost_model$cost_dataframe$cost <- cost_model$cost_dataframe$quantity * cost_model$cost_dataframe$price_gbp_real
+  # Join on deflators, using key dates to specify date coverage of the model
+
+
+
+  cost_model$cost_dataframe$cost <- cost_model$cost_dataframe$quantity * cost_model$cost_dataframe$price_gbp
   cost_model
 }
 
