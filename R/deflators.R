@@ -34,7 +34,7 @@ add_future_values_to_gdp_deflator <- function(gdp_deflator_series, end_date = as
                                               future_gdp_deflator = 0.02) {
 
   # Add additional rows for future years
-  new_quarters <- seq(from = max(gdp_deflator_series$date), to = end_date, by = "quarter")
+  new_quarters <- seq(from = max(gdp_deflator_series$date), to = end_date + months(3), by = "quarter")
   new_quarters <- new_quarters[new_quarters != max(gdp_deflator_series$date)]
 
   len <- length(new_quarters)
@@ -45,7 +45,7 @@ add_future_values_to_gdp_deflator <- function(gdp_deflator_series, end_date = as
 
   new_gdp <- max(gdp_deflator_series$gdp_deflator)*growth
 
-  new_df <- data_frame(date =new_quarters, gdp_deflator=new_gdp)
+  new_df <- tibble::data_frame(date =new_quarters, gdp_deflator=new_gdp)
 
   rbind(gdp_deflator_series, new_df)
 }
@@ -71,7 +71,7 @@ add_greenbook_discount <- function(gdp_deflator_df,green_book_discount_rate = 0.
 
   gdp_deflator_df <- gdp_deflator_df %>%
     dplyr::mutate(n = row_number()) %>%
-    dplyr::mutate(green_book_discount = (gbr^(1/356.25))^(n))
+    dplyr::mutate(green_book_discount = (gbr^(1/365.25))^(n))
 
   rebase <- (gdp_deflator_df %>%
                dplyr::filter(date == base_date) %>%
@@ -138,5 +138,36 @@ get_gdp_deflator_for_all_days <- function(start_date = as.Date("2017-01-01"), en
 }
 
 
-# get_gdp_deflator_for_all_days(start_date = as.Date("2015-05-01"), end_date = as.Date("2015-05-03"), base_date = as.Date("2015-05-02"))
+add_real_nominal_costs_to_cost_model <- function(cost_model) {
+
+  start_date <- min(cost_model$key_dates$date)
+  end_date <- max(cost_model$key_dates$date)
+  deflators <- get_gdp_deflator_for_all_days(start_date = start_date, end_date = end_date, base_date = cost_model$base_date)
+
+
+
+  cost_model$cost_dataframe <- cost_model$cost_dataframe %>%
+    dplyr::left_join(deflators, by="date")
+
+  #When real_or_nominal is 'real' then price_gbp is price.  Otherwise we need to apply the GDP deflator
+  reals <- cost_model$cost_dataframe %>%
+    dplyr::filter(real_or_nominal == "real") %>%
+    dplyr::mutate(cost_gbp_real = price_gbp*quantity) %>%
+    dplyr::mutate(cost_gbp_nominal = price_gbp*gdp_deflator*quantity)
+
+  nominals <- cost_model$cost_dataframe %>%
+    dplyr::filter(real_or_nominal == "nominal") %>%
+    dplyr::mutate(cost_gbp_real = (price_gbp/gdp_deflator)*quantity) %>%
+    dplyr::mutate(cost_gbp_nominal = price_gbp*quantity)
+
+  cost_model$cost_dataframe <- rbind(reals, nominals)
+
+  cost_model$cost_dataframe <- cost_model$cost_dataframe %>%
+                                dplyr::select(-price_gbp, -real_or_nominal)
+
+
+  cost_model
+
+}
+
 

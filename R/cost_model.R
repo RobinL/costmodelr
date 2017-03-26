@@ -6,6 +6,7 @@ create_cost_model <- function(key_dates) {
   cost_model$chunks <- list()
   cost_model$id_lookup <- list()
   cost_model$key_dates <- key_dates
+  cost_model$base_date <- NULL
 
 
   # A vector of the columns we want to join onto the 'chunks' of the cost model for e.g. breaking down costs by category
@@ -27,6 +28,7 @@ run_cost_model <- function(cost_model) {
   cost_model$chunks <- list()
   cost_model$id_lookup <- list()
 
+
   for (module in cost_model$registered_modules) {
     cost_model <- module$process_module(cost_model)
   }
@@ -39,9 +41,11 @@ run_cost_model <- function(cost_model) {
 
   # Join on deflators, using key dates to specify date coverage of the model
 
+  cost_model <- add_real_nominal_costs_to_cost_model(cost_model)
+
+  cost_model <- add_key_dates_categorisations(cost_model)
 
 
-  cost_model$cost_dataframe$cost <- cost_model$cost_dataframe$quantity * cost_model$cost_dataframe$price_gbp
-  cost_model
+
 }
 

@@ -13,6 +13,72 @@ vignette: >
 
 This vignette illustrates how to customise and extend your cost model.
 
-## Package basics
+## Adding settings
 
+### Categorisation columns
 
+By default, each table of cost assumptions has three columns, `category_1,category_2 and category_3`.  This enables the user to breakdown final results at varying degrees of granularity.
+
+For example, oneoff cost assumptions may look like this:
+
+```{r, echo=FALSE}
+
+df <- readr::read_csv(system.file("extdata", "oneoff_costs_1.csv", package="costmodelr"), col_types=readr::cols())
+DT::datatable(df, options=list(scrollX = TRUE))
+```
+
+However, the user can provide additional categorisation columns, or overwrite these defaults.  For example, if in addition to `category_1,category_2 and category_3`, the user wants to provide a forth column called `additional breakdown`, they should write the following:
+
+```{r, eval=FALSE}
+cost_moddel <- create_cost_model(key_dates) %>%
+                  setting_append_to_categorisation_columns("additional_breakdown")
+```
+
+If the user wanted instead to provide two categorisation columns, `cat_1` and `cat_2` (and not to provide `category_1,category_2 and category_3`), they might instead write:
+
+```{r, eval=FALSE}
+cost_moddel <- create_cost_model(key_dates) %>%
+                  setting_categorisation_columns(c("cat_1", "cat_2"))
+```
+
+### Deflator base date
+
+The user can specify the 'base date' for real costs.  For instance if the user wants all costs to be quoted in '2017 pounds', they would specify the following:
+
+  
+    
+```{r, eval=FALSE}
+cost_model <- create_cost_model(key_dates) %>%
+    setting_deflator_base_date(as.Date("2017-01-01"))
+```
+    
+## Full example
+
+The following provides a full example.  The two assumptions files are reproduced below.
+
+```{r, eval=FALSE}
+key_dates <- readr::read_csv(system.file("extdata", "key_dates_2.csv", package="costmodelr")))
+oneoff <- readr::read_csv(system.file("extdata", "oneoff_costs_2.csv", package="costmodelr")))
+recurring <- readr::read_csv(system.file("extdata", "recurring_cost_2.csv", package="costmodelr")))
+
+cost_model <- create_cost_model(key_dates) %>%
+  setting_append_to_categorisation_columns("additional_breakdown") %>%
+  setting_deflator_base_date(as.Date("2017-01-01")) %>%
+  add_oneoff_costs(oneoff) %>%
+  add_recurring_cost(recurring) %>%
+  run_cost_model()
+```
+
+`oneoff_costs_2.csv`
+
+```{r, echo=FALSE}
+df <- readr::read_csv(system.file("extdata", "oneoff_costs_2.csv", package="costmodelr"), col_types=readr::cols())
+DT::datatable(df, options=list(scrollX = TRUE))
+```
+
+`recurring_cost_2.csv`
+
+```{r, echo=FALSE}
+df <- readr::read_csv(system.file("extdata", "recurring_cost_2.csv", package="costmodelr"), col_types=readr::cols())
+DT::datatable(df, options=list(scrollX = TRUE))
+```

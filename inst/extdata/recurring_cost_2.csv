@@ -1,0 +1,3 @@
+price_in_original_currency,real_or_nominal,currency,quantity,frequency,first_date,growth_in_cost_percent_per_annum,growth_in_cost_absolute_per_annum,growth_in_quantity_percent_per_annum,growth_in_quantity_absolute_per_annum,category_1,category_2,category_3, additional_breakdown
+50,real,GBP,2,year,2017-01-01,0.0,0,0,0.0,real,hardware,cpu,rc_real
+50,nominal,GBP,2,year,2017-01-01,0.0,0,0,0,nominal,software,analysis,rc_nominal

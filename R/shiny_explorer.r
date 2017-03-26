@@ -1,3 +1,8 @@
+# TODO:  This should be really basic - producing a pivot table and a chart that shows cumulative cost growth
+# User can control breadkdown by category.
+# Pivot table breaks costs down by alpha, beta live as well (row) and category (col) with grand totals
+
+
 #' A Shiny app that enables the user to explore the cost model
 #'
 #' @export
