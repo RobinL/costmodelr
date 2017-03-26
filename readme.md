@@ -1,4 +1,4 @@
-o![Build Status](https://travis-ci.org/RobinL/costmodelr.svg?branch=master)](https://travis-ci.org/RobinL/costmodelr)
+[![Build Status](https://travis-ci.org/RobinL/costmodelr.svg?branch=master)](https://travis-ci.org/RobinL/costmodelr)
 [![Coverage Status](https://img.shields.io/codecov/c/github/RobinL/costmodelr/master.svg)](https://codecov.io/github/RobinL/costmodelr?branch=master)
 
 ## Cost modelling in R
