@@ -9,7 +9,10 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r results='hide', message=FALSE, warning=FALSE}
+library(DT)
 
+```
 
 ## Introduction
 

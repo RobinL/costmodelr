@@ -9,6 +9,11 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r results='hide', message=FALSE, warning=FALSE}
+library(DT)
+
+```
+
 ## Introduction
 
 This vignette illustrates how to customise and extend your cost model.
