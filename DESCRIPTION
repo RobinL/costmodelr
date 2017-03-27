@@ -20,7 +20,8 @@ Imports:
   stringr,
   readr,
   reshape2,
-  magrittr
+  magrittr,
+  DT
 RoxygenNote: 6.0.1
 Roxygen: list(markdown = TRUE)
 Suggests: knitr,
