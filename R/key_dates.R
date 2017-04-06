@@ -13,6 +13,16 @@ kd_min <- function(key_dates, date_col="date") {
 }
 
 
+#' Get all dates
+#'
+#' @export
+kd_all_dates_days <- function(key_dates, date_col="date") {
+  max_d <- kd_max(key_dates, date_col = date_col)
+  min_d <- kd_min(key_dates, date_col = date_col)
+
+  seq(min_d, max_d, by="day")
+}
+
 #' Add columns to cost model categorising line items by the additional columns in 'key dates'
 #'
 #' @export
@@ -29,3 +39,4 @@ add_key_dates_categorisations <- function(cost_model) {
   cost_model
 
 }
+
