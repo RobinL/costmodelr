@@ -36,12 +36,12 @@ shiny_vis <- function(cost_model) {
         shiny::tabsetPanel(
           shiny::tabPanel("Main",
             shiny::fluidRow(
-              column(6,vegalite::vegaliteOutput("basic_linechart")),
-              column(6,vegalite::vegaliteOutput("basic_barchart"))
+              shiny::column(6,vegalite::vegaliteOutput("basic_linechart")),
+              shiny::column(6,vegalite::vegaliteOutput("basic_barchart"))
             )
           ),
           shiny::tabPanel("Pivot",
-                          rpivotTableOutput("pivot")
+                         rpivotTable::rpivotTableOutput("pivot")
           )
         )
 
@@ -94,8 +94,9 @@ shiny_vis <- function(cost_model) {
 
       })
 
+
       output$pivot <- rpivotTable::renderRpivotTable({
-        rpivotTable(data = cost_model$cost_dataframe)
+        rpivotTable::rpivotTable(data = cost_model$cost_dataframe)
       })
 
 

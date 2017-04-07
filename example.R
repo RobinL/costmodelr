@@ -7,12 +7,13 @@
 # install_github("RobinL/costmodelr")
 
 # detach("package:costmodelr", unload = TRUE)
-# library(costmodelr)
+library(costmodelr)
 library(dplyr)
 library(lubridate)
 library(readr)
 library(magrittr)
 library(formattable)
+library(threelittlecircles)
 
 
 # Read in assumptions from files
