@@ -7,7 +7,7 @@
 # install_github("RobinL/costmodelr")
 
 # detach("package:costmodelr", unload = TRUE)
-library(costmodelr)
+# library(costmodelr)
 library(dplyr)
 library(lubridate)
 library(readr)
@@ -43,6 +43,9 @@ cost_model <- create_cost_model(key_dates) %>%
 cost_model <- run_cost_model(cost_model)
 
 shiny_vis(cost_model)
+
+
+
 cost_model <- get_cumulative_costs(cost_model, "category_1")
 
 vegalite::vegalite() %>%
@@ -53,12 +56,31 @@ vegalite::vegalite() %>%
   vegalite::
   vegalite::mark_bar()
 
+reshape2::dcast(cost_model$cost_dataframe, period ~ category_1, margins=TRUE, fun.aggregate = sum, value.var = "cost_gbp_nominal")
 
+format(as.Date("2017-01-01"), format="%w %m/%d/%y")
+
+df <- cost_model$cost_dataframe
+
+lookup <- list()
+lookup[["week"]] <- "%Y Week %W"
+lookup[["month"]]<- "%Y %b"
+
+df %>%
+  dplyr::select(date, cost_gbp_nominal) %>%
+  dplyr::group_by("Date" = format(date, format="%b %Y")) %>%
+  dplyr::summarise("Sum of nominal cost" = sum(cost_gbp_nominal)) %>%
+  dplyr::arrange(as.Date(paste("01 ", Date),format="%d %b %Y")) -> df2
+
+formattable::formattable(df2, list(
+  "Sum of nominal cost" = formattable::formatter("span",  x ~ formattable::currency(round(x,-2), symbol="£", digits=0, big.mark=","))
+))
 
 
 # Cross tabulation, broken down by category
 
 df <- cost_model$cost_dataframe
+df
 library(rpivotTable)
 rpivotTable(df)
 df %>%
@@ -176,6 +198,26 @@ readr::write_csv(df, "delete.csv")
 # Problem is we want cumulative costs in each category
 
 
+
+
+periodicity = "week"
+lookup <- list()
+lookup[["week"]] <- "Week %W %Y"
+lookup[["month"]]<- "%b %Y"
+
+this_format <- lookup[[periodicity]]
+print(periodicity)
+print(this_format)
+
+df %>%
+  dplyr::select(date, cost_gbp_nominal) %>%
+  dplyr::group_by(date= format(date, format=this_format)) %>%
+  dplyr::summarise(sum = sum(cost_gbp_nominal)) %>%
+  dplyr::arrange(as.Date(paste("01", date),format=paste("%d", this_format)))
+
+paste("%d", this_format)
+
+as.Date("01 Week 07 2017", "%d Week %W %Y")
 
 
 
