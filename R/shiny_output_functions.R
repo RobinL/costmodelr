@@ -30,7 +30,7 @@ get_formattable_formatting_list <- function(table, selection) {
   )
 
   for (sel in selection) {
-    format_list[[sel]] <- formattable::formatter("span", style = x ~ style(font.weight = "bold"))
+    format_list[[sel]] <- formattable::formatter("span", style = x ~ formattable::style(font.weight = "bold"))
   }
 
 
