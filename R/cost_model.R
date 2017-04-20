@@ -3,8 +3,8 @@
 #' @export
 create_cost_model <- function(key_dates) {
   cost_model <- list()
-  cost_model$chunks <- list()
-  cost_model$id_lookup <- list()
+  cost_model$chunks <- NULL
+  cost_model$id_lookup <- NULL
   cost_model$key_dates <- key_dates
   cost_model$base_date <- NULL
 
@@ -27,19 +27,19 @@ create_cost_model <- function(key_dates) {
 run_cost_model <- function(cost_model) {
 
   # Reset chunks and id lookup so we don't duplicate costs if we've called run_cost_model_before
-  cost_model$chunks <- list()
-  cost_model$id_lookup <- list()
+  cost_model$chunks <- NULL
+  cost_model$id_lookup <- NULL
 
 
   for (module in cost_model$registered_modules) {
     cost_model <- module$process_module(cost_model)
   }
 
-  cost_model$all_line_items <- do.call(rbind, cost_model$chunks)
-  cost_model$all_ids <- do.call(rbind, cost_model$id_lookup)
+  # cost_model$all_line_items <- do.call(rbind, cost_model$chunks)
+  # cost_model$all_ids <- do.call(rbind, cost_model$id_lookup)
 
-  cost_model$cost_dataframe <- cost_model$all_line_items %>%
-                                    dplyr::left_join(cost_model$all_ids, by="id")
+  cost_model$cost_dataframe <- cost_model$chunks %>%
+                                    dplyr::left_join(cost_model$id_lookup, by="id")
 
   # Join on deflators, using key dates to specify date coverage of the model
 

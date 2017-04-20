@@ -20,8 +20,8 @@ library(threelittlecircles)
 
 key_dates <- readr::read_csv("/Users/robinlinacre/Documents/r_projects/final_cost_model/assumptions/key_dates.csv", col_types=readr::cols())
 recurring_costs =  readr::read_csv( "/Users/robinlinacre/Documents/r_projects/final_cost_model/assumptions/recurring_cost.csv", col_types=readr::cols())
-
-staff_utilisation <- readr::read_csv( "/Users/robinlinacre/Documents/r_projects/final_cost_model/assumptions/staff_utilisation.csv", col_types=readr::cols())
+recurring_costs
+staff_utilisation <- readr::read_csv( "/Users/robinlinacre/Documents/r_projects/final_cost_model/assumptions/staff_utilisation_actuals.csv", col_types=readr::cols())
 
 rate_card <- readr::read_csv( "/Users/robinlinacre/Documents/r_projects/final_cost_model/assumptions/rate_card.csv", col_types=readr::cols())
 
@@ -31,19 +31,23 @@ users <- readr::read_csv( "/Users/robinlinacre/Documents/r_projects/final_cost_m
 oneoff <- readr::read_csv( "/Users/robinlinacre/Documents/r_projects/final_cost_model/assumptions/oneoff_costs.csv", col_types=readr::cols())
 
 
-
 # Add each set of assumptions to model
 cost_model <- create_cost_model(key_dates) %>%
   add_oneoff_costs(oneoff) %>%
+  add_oneoff_costs(oneoff) %>%
   add_recurring_cost(recurring_costs) %>%
-  add_user_variable_costs(users, user_variable_costs) %>%
-  add_staff_utilisation(staff_utilisation, rate_card)
+  add_recurring_cost(recurring_costs)
+  # add_user_variable_costs(users, user_variable_costs) %>%
+  # add_staff_utilisation(staff_utilisation, rate_card)
 
 # Run model
 cost_model <- run_cost_model(cost_model)
-
+cost_model$cost_dataframe
 shiny_vis(cost_model)
 
+cost_model$id_lookup
+
+cost_model$chunks
 
 
 cost_model <- get_cumulative_costs(cost_model, "category_1")
@@ -232,16 +236,8 @@ df <- cost_model$cost_dataframe %>%
 
 df
 
-# Break down total costs by category
-cost_model$cost_dataframe %>%
-  select(cost, category_1, category_2, category_3) %>%
-  group_by(category_1, category_2, category_3) %>%
-  summarise(cost = sum(cost))
 
+a <- list(x = "a")
+names(a)
 
-# Find max quantity in each category
-
-cost_model$cost_dataframe %>%
-  select(quantity, category_1, category_2, category_3) %>%
-  group_by(category_1, category_2, category_3) %>%
-  summarise(max_quantity = max(quantity))
+("x" %in% names(a))

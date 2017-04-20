@@ -1,19 +1,8 @@
 # Recurring cost
 
 #' Model recurring costs from an assumptions list
-#' @param assumptions_list this is a list that should have the following elements
-#' * id: The cost (line item) ID.  This can be used later to join on other information such as the category of spend, etc
-#' * price_in_original_currency_real: The price of the line item
-#' * currency: A string.  `GBP` if Sterling, otherwise `USD`, `EUR` etc.
-#' * frequency:  How often the cost occurs.  `day`, `week`, `month`, `year` etc.
-#' * first date:  a Date. The first time the cost occurs
-#' * growth_in_real_cost_percent_per_annum
-#' * growth_in_real_cost_absolute_per_annum
-#' * growth_in_quantity_percent_per_annum
-#' * growth_in_quantity_absolute_per_annum
-#' * quantity
+#' @param assumptions_list
 #' @param key_dates a key dates dataframe so the recurring costs have an end date
-#' @export
 get_recurring_cost_chunk <- function(assumption_list, key_dates) {
   al <- assumption_list
 
@@ -78,25 +67,43 @@ get_recurring_cost_id <- function(assumption_list, cost_model) {
 
 process_recurring_costs <- function(cost_model) {
 
-  assumptions_table <- cost_model$registered_modules$recurring_cost$assumptions
-  new_chunks <- list()
-  new_ids <- list()
+  recurring_cost_assumptions <- cost_model$registered_modules$recurring_cost$recurring_cost_raw
+  recurring_cost_assumptions <- create_id_column(recurring_cost_assumptions, "rc_")
+  recurring_cost_assumptions <- convert_excel_dates_in_df(recurring_cost_assumptions, cols = "first_date")
 
   # Iterate through rows of the assumptions, getting chunks
-  for (i in 1:nrow(assumptions_table)){
-    this_row <- assumptions_table[i,]
-    l <- as.list(this_row)
+  new_chunks <- recurring_cost_assumptions %>%
+    purrr::by_row(get_recurring_cost_chunk, key_dates=cost_model$key_dates, .labels = FALSE, .to = "tibbles") %$%
+    dplyr::bind_rows(tibbles)
 
-    chunk <- get_recurring_cost_chunk(l, cost_model$key_dates)
-    new_chunks[[l$id]] <- chunk
 
-    id <- get_recurring_cost_id(l, cost_model)
-    new_ids[[l$id]] <- id
 
-  }
+  # Append all new chunk rows to existing chunks
+  cost_model$chunks <- dplyr::bind_rows(new_chunks, cost_model$chunks)
 
-  cost_model$chunks <- append(cost_model$chunks, new_chunks)
-  cost_model$id_lookup <- append(cost_model$id_lookup, new_ids)
+  new_ids <- recurring_cost_assumptions %>%
+    purrr::by_row(get_recurring_cost_id, cost_model=cost_model, .labels=FALSE, .to = "tibbles") %$%
+    dplyr::bind_rows(tibbles)
+
+  cost_model$id_lookup <- dplyr::bind_rows(new_ids, cost_model$id_lookup)
+
+  cost_model
+
+
+  # for (i in 1:nrow(assumptions_table)){
+  #   this_row <- assumptions_table[i,]
+  #   l <- as.list(this_row)
+  #
+  #   chunk <- get_recurring_cost_chunk(l, cost_model$key_dates)
+  #   new_chunks[[l$id]] <- chunk
+  #
+  #   id <- get_recurring_cost_id(l, cost_model)
+  #   new_ids[[l$id]] <- id
+  #
+  # }
+
+  # # cost_model$chunks <- append(cost_model$chunks, new_chunks)
+  # cost_model$id_lookup <- append(cost_model$id_lookup, new_ids)
 
   cost_model
 }
@@ -106,12 +113,19 @@ process_recurring_costs <- function(cost_model) {
 #' @export
 add_recurring_cost <- function(cost_model, recurring_cost_assumptions) {
 
-  recurring_cost_assumptions <- convert_excel_dates_in_df(recurring_cost_assumptions, cols = "first_date")
+  # If this is the first time we've called add_recurring_cost, then register a new module, otherwise append new data
+  if (!("recurring_cost" %in% names(cost_model$registered_modules))) {
+    cost_model$registered_modules$recurring_cost <- list()
+    cost_model$registered_modules$recurring_cost$recurring_cost_raw <- recurring_cost_assumptions
 
-  cost_model$registered_modules$recurring_cost <- list()
-  recurring_cost_assumptions <- create_id_column(recurring_cost_assumptions, "rc_")
-  cost_model$registered_modules$recurring_cost$assumptions <- recurring_cost_assumptions
-  cost_model$registered_modules$recurring_cost$process_module <- process_recurring_costs
+    # Note we don't process at this point, we just say how to proess.
+    # Appending is therefore just a case of adding more assumption rows.  The only difficulty is the id column.
+    cost_model$registered_modules$recurring_cost$process_module <- process_recurring_costs
+  } else {
+    cost_model$registered_modules$recurring_cost$recurring_cost_raw %<>%
+      dplyr::bind_rows(recurring_cost_assumptions)
+  }
+
   cost_model
 }
 
