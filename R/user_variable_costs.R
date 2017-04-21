@@ -44,28 +44,31 @@ get_user_variable_costs_id <- function(assumption_list, cost_model) {
 #' @export
 process_user_variable_costs <- function(cost_model) {
 
-  cost_model$registered_modules$user_variable_cost$num_user <- expand_to_time_horizon(cost_model$registered_modules$user_variable_cost$num_user,cost_model$key_dates)
-  cost_model$registered_modules$user_variable_cost$num_user <- interpolate_days_numeric(cost_model$registered_modules$user_variable_cost$num_user)
+  user_variable_cost_assumptions <- cost_model$registered_modules$user_variable_cost$user_variable_cost_raw %>%
+    convert_excel_dates_in_df() %>%
+    create_id_column("uvc_")
 
-  assumptions_table <- cost_model$registered_modules$user_variable_cost$assumptions
-  new_chunks <- list()
-  new_ids <- list()
+  num_users <- cost_model$registered_modules$user_variable_cost$num_users %>%
+    convert_excel_dates_in_df() %>%
+    expand_to_time_horizon(cost_model$key_dates) %>%
+    interpolate_days_numeric()
 
   # Iterate through rows of the assumptions, getting chunks
-  for (i in 1:nrow(assumptions_table)){
-    this_row <- assumptions_table[i,]
-    l <- as.list(this_row)
+  new_chunks <- user_variable_cost_assumptions %>%
+    purrr::by_row(get_user_variable_costs_chunk, users = num_users, key_dates=cost_model$key_dates, .labels = FALSE, .to = "tibbles") %$%
+    dplyr::bind_rows(tibbles)
 
-    chunk <- get_user_variable_costs_chunk(l, cost_model$registered_modules$user_variable_cost$num_user, cost_model$key_dates)
-    new_chunks[[l$id]] <- chunk
+  # Append all new chunk rows to existing chunks
+  cost_model$chunks <- dplyr::bind_rows(new_chunks, cost_model$chunks)
 
-    id <- get_user_variable_costs_id(l, cost_model)
-    new_ids[[l$id]] <- id
+  new_ids <- user_variable_cost_assumptions %>%
+    purrr::by_row(get_user_variable_costs_id, cost_model=cost_model, .labels=FALSE, .to = "tibbles") %$%
+    dplyr::bind_rows(tibbles)
 
-  }
+  cost_model$id_lookup <- dplyr::bind_rows(new_ids, cost_model$id_lookup)
 
-  cost_model$chunks <- append(cost_model$chunks, new_chunks)
-  cost_model$id_lookup <- append(cost_model$id_lookup, new_ids)
+
+
 
   cost_model
 }
@@ -75,16 +78,20 @@ process_user_variable_costs <- function(cost_model) {
 #' @export
 add_user_variable_costs <- function(cost_model, num_users, user_variable_cost_assumptions) {
 
-  cost_model$registered_modules$user_variable_cost <- list()
+  # If this is the first time we've called add_oneoff_costs, then register a new module, otherwise append new data
+  if (!("user_variable_cost" %in% names(cost_model$registered_modules))) {
+    cost_model$registered_modules$user_variable_cost <- list()
+    cost_model$registered_modules$user_variable_cost$user_variable_cost_raw <- user_variable_cost_assumptions
 
-  num_users <- convert_excel_dates_in_df(num_users)
-  user_variable_cost_assumptions <- convert_excel_dates_in_df(user_variable_cost_assumptions)
+    # Note we don't process at this point, we just say how to proess.
+    # Appending is therefore just a case of adding more assumption rows.  The only difficulty is the id column.
+    cost_model$registered_modules$user_variable_cost$process_module <- process_user_variable_costs
+  } else {
+    cost_model$registered_modules$user_variable_cost$user_variable_cost_raw %<>%
+      dplyr::bind_rows(user_variable_cost_assumptions)
+  }
 
   cost_model$registered_modules$user_variable_cost$num_users <- num_users
 
-
-  user_variable_cost_assumptions <- create_id_column(user_variable_cost_assumptions, "uvc_")
-  cost_model$registered_modules$user_variable_cost$assumptions <- user_variable_cost_assumptions
-  cost_model$registered_modules$user_variable_cost$process_module <- process_user_variable_costs
   cost_model
 }
