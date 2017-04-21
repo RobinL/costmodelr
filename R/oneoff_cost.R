@@ -23,11 +23,13 @@ get_oneoff_cost_id <- function(assumption_row, cost_model) {
 }
 
 #' This function is called when the cost model is run.
-process_oneoff_costs <- function(cost_model) {
-  oneoff_cost_assumptions <- cost_model$registered_modules$oneoff_cost$oneoff_cost_raw
-  oneoff_cost_assumptions <- convert_excel_dates_in_df(oneoff_cost_assumptions)
-  oneoff_cost_assumptions <- create_id_column(oneoff_cost_assumptions, "oo_")
-  cost_model$registered_modules$oneoff_cost$assumptions <- oneoff_cost_assumptions
+process_oneoff_costs <- function(cost_model, this_module) {
+
+  id_prefix <- paste0("oo_", this_module$module_number, "_")
+
+  oneoff_cost_assumptions <- this_module$oneoff_cost_assumptions %>%
+    convert_excel_dates_in_df() %>%
+    create_id_column(id_prefix)
 
   # Each row of assumptions creates a chunk (which in general could have more than one row)
   # This chunk ends up in a column called tibbles (each element in this column is a tibble)
@@ -53,18 +55,18 @@ process_oneoff_costs <- function(cost_model) {
 #' @export
 add_oneoff_costs <- function(cost_model, oneoff_cost_assumptions) {
 
-  # If this is the first time we've called add_oneoff_costs, then register a new module, otherwise append new data
-  if (!("oneoff_cost" %in% names(cost_model$registered_modules))) {
-    cost_model$registered_modules$oneoff_cost <- list()
-    cost_model$registered_modules$oneoff_cost$oneoff_cost_raw <- oneoff_cost_assumptions
+  # cost_model$registered_modules should be a list.
 
-    # Note we don't process at this point, we just say how to proess.
-    # Appending is therefore just a case of adding more assumption rows.  The only difficulty is the id column.
-    cost_model$registered_modules$oneoff_cost$process_module <- process_oneoff_costs
-  } else {
-    cost_model$registered_modules$oneoff_cost$oneoff_cost_raw %<>%
-      dplyr::bind_rows(oneoff_cost_assumptions)
-  }
+  this_module <- list()
+  # If this is the first time we've called add_oneoff_costs, then register a new module, otherwise append new data
+
+  this_module$oneoff_cost_assumptions <- oneoff_cost_assumptions
+  this_module$module_number <- length(cost_model$registered_modules)
+
+  # Note we don't process at this point, we just say how to proess.
+  this_module$process_module <- process_oneoff_costs
+
+  cost_model$registered_modules %<>% lappend(this_module)
 
   cost_model
 }

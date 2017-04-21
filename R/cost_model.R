@@ -32,7 +32,7 @@ run_cost_model <- function(cost_model) {
 
 
   for (module in cost_model$registered_modules) {
-    cost_model <- module$process_module(cost_model)
+    cost_model <- module$process_module(cost_model, module)
   }
 
   # cost_model$all_line_items <- do.call(rbind, cost_model$chunks)

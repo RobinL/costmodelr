@@ -173,4 +173,9 @@ stop_expected_fields <- function(expected_fields, this_list) {
 }
 
 
+lappend <- function(lst, obj) {
+  lst[[length(lst)+1]] <- obj
+  return(lst)
+}
+
 

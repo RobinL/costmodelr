@@ -42,13 +42,15 @@ get_user_variable_costs_id <- function(assumption_list, cost_model) {
 #' Given a cost model, create the chunks corresponding to user variable costs
 #'
 #' @export
-process_user_variable_costs <- function(cost_model) {
+process_user_variable_costs <- function(cost_model, this_module) {
 
-  user_variable_cost_assumptions <- cost_model$registered_modules$user_variable_cost$user_variable_cost_raw %>%
+  id_prefix <- paste0("uvc_", this_module$module_number, "_")
+
+  user_variable_cost_assumptions <- this_module$user_variable_cost %>%
     convert_excel_dates_in_df() %>%
-    create_id_column("uvc_")
+    create_id_column(id_prefix)
 
-  num_users <- cost_model$registered_modules$user_variable_cost$num_users %>%
+  num_users <- this_module$num_users %>%
     convert_excel_dates_in_df() %>%
     expand_to_time_horizon(cost_model$key_dates) %>%
     interpolate_days_numeric()
@@ -67,9 +69,6 @@ process_user_variable_costs <- function(cost_model) {
 
   cost_model$id_lookup <- dplyr::bind_rows(new_ids, cost_model$id_lookup)
 
-
-
-
   cost_model
 }
 
@@ -78,20 +77,21 @@ process_user_variable_costs <- function(cost_model) {
 #' @export
 add_user_variable_costs <- function(cost_model, num_users, user_variable_cost_assumptions) {
 
+  # cost_model$registered_modules should be a list.
+
+  this_module <- list()
   # If this is the first time we've called add_oneoff_costs, then register a new module, otherwise append new data
-  if (!("user_variable_cost" %in% names(cost_model$registered_modules))) {
-    cost_model$registered_modules$user_variable_cost <- list()
-    cost_model$registered_modules$user_variable_cost$user_variable_cost_raw <- user_variable_cost_assumptions
 
-    # Note we don't process at this point, we just say how to proess.
-    # Appending is therefore just a case of adding more assumption rows.  The only difficulty is the id column.
-    cost_model$registered_modules$user_variable_cost$process_module <- process_user_variable_costs
-  } else {
-    cost_model$registered_modules$user_variable_cost$user_variable_cost_raw %<>%
-      dplyr::bind_rows(user_variable_cost_assumptions)
-  }
+  this_module$user_variable_cost <- user_variable_cost_assumptions
+  this_module$num_users <- num_users
 
-  cost_model$registered_modules$user_variable_cost$num_users <- num_users
+  this_module$module_number <- length(cost_model$registered_modules)
+
+  # Note we don't process at this point, we just say how to proess.
+  this_module$process_module <- process_user_variable_costs
+
+  cost_model$registered_modules %<>% lappend(this_module)
 
   cost_model
+
 }

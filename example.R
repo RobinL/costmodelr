@@ -36,10 +36,10 @@ cost_model <- create_cost_model(key_dates) %>%
   add_oneoff_costs(oneoff) %>%
   add_oneoff_costs(oneoff) %>%
   add_recurring_cost(recurring_costs) %>%
-  add_recurring_cost(recurring_costs) %>%
-  add_user_variable_costs(users, user_variable_costs) %>%
+  add_recurring_cost(recurring_costs)
   add_user_variable_costs(users, user_variable_costs)
-  # add_staff_utilisation(staff_utilisation, rate_card)
+  # add_user_variable_costs(users, user_variable_costs)
+  # # add_staff_utilisation(staff_utilisation, rate_card)
 
 # Run model
 cost_model <- run_cost_model(cost_model)
