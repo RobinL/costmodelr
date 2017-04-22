@@ -45,7 +45,7 @@ test_that("test full example 1", {
       add_user_variable_costs(users, user_variable_costs) %>%
       add_oneoff_costs(oneoff) %>%
       add_oneoff_costs(oneoff) %>%
-      run_cost_model() %>%
+      run_cost_model() %>%  # Deliberately run it twice to ensure this doesn't mess up/duplicate results
       run_cost_model()
 
     expected_answer =  readr::read_csv(system.file("extdata", "expected_answer_1.csv", package="costmodelr"), col_types=readr::cols())

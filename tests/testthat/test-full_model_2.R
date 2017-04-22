@@ -1,5 +1,6 @@
 context("test full example 2")
 
+# This example tests the ability to add additional categorisation columns and reset the base date
 
 test_that("test full example 2", {
 
