@@ -1,0 +1,3 @@
+price_in_original_currency,real_or_nominal,currency,quantity,date,category_1,category_2,category_3, forecast_actual
+100,real,GBP,1,2017-01-01,a,b,c, forecast
+100,real,GBP,1,2017-01-02,a,b,c, forecast
