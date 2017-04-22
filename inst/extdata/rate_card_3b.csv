@@ -1,0 +1,3 @@
+price_in_original_currency,real_or_nominal,id,currency,price_frequency,annual_percentage_increase,category_1,category_2,category_3, forecast_actual
+3652.5,real,DEV,GBP,year,0,staff,technical,developer, forecast
+35,real,PM,GBP,week,0,staff,non technical,product manager,forecast

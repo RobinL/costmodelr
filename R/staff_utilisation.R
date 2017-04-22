@@ -66,6 +66,8 @@ get_staff_line_item <- function(col, staff_utilisation, rate_card, key_dates) {
                                                annual_growth = l$annual_percentage_increase,
                                                start_date = kd_min(key_dates),
                                                col_to_increase = "price_gbp")
+  this_staff_line_item %<>% dplyr::filter(quantity != 0.0)
+
   this_staff_line_item
 }
 
@@ -87,7 +89,7 @@ process_staff_utilisation <- function(cost_model, this_module){
   stop_duplicated_dates(staff_utilisation)
   stop_duplicated_dates(key_dates)
 
-  staff_utilisation = expand_staff_utilisation_to_time_horizon(staff_utilisation, key_dates)
+  # staff_utilisation = expand_staff_utilisation_to_time_horizon(staff_utilisation, key_dates)
 
   staff_line_items <- colnames(staff_utilisation)[colnames(staff_utilisation) != "date"]
 
@@ -97,22 +99,6 @@ process_staff_utilisation <- function(cost_model, this_module){
   if (any(rate_card$price_frequency == "day")){
     message("Note: Day rates for staff are assumed to apply 5 days per week")
   }
-
-
-  # new_chunks <- oneoff_cost_assumptions %>%
-  #   purrr::by_row(get_staff_line_item, key_dates=cost_model$key_dates, .labels=FALSE, .to = "tibbles") %$%
-  #   dplyr::bind_rows(tibbles) # Note that the tibbles column is a list-column
-  #
-  # # Append all new chunk rows to existing chunks
-  # cost_model$chunks <- dplyr::bind_rows(new_chunks, cost_model$chunks)
-  #
-  # new_ids <- oneoff_cost_assumptions %>%
-  #   purrr::by_row(get_oneoff_cost_id, cost_model=cost_model, .labels=FALSE, .to = "tibbles") %$%
-  #   dplyr::bind_rows(tibbles)
-  #
-  # cost_model$id_lookup <- dplyr::bind_rows(new_ids, cost_model$id_lookup)
-  #
-  # cost_model
 
 
   ids <- paste0(id_prefix, staff_line_items)
@@ -133,7 +119,6 @@ process_staff_utilisation <- function(cost_model, this_module){
     purrr::map(get_staff_line_item_id, cost_model = cost_model, rate_card = rate_card)
 
   new_ids <- purrr::map2(new_ids_list, names(new_ids_list), name_to_id)
-
 
   cost_model$chunks <- dplyr::bind_rows(cost_model$chunks, new_chunks)
   cost_model$id_lookup <- dplyr::bind_rows(cost_model$id_lookup, new_ids)
