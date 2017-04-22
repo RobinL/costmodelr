@@ -33,16 +33,19 @@ oneoff <- readr::read_csv( "/Users/robinlinacre/Documents/r_projects/final_cost_
 
 # Add each set of assumptions to model
 cost_model <- create_cost_model(key_dates) %>%
-  add_oneoff_costs(oneoff) %>%
-  add_oneoff_costs(oneoff) %>%
-  add_recurring_cost(recurring_costs) %>%
-  add_recurring_cost(recurring_costs)
-  add_user_variable_costs(users, user_variable_costs)
-  # add_user_variable_costs(users, user_variable_costs)
-  # # add_staff_utilisation(staff_utilisation, rate_card)
+  add_oneoff_costs(oneoff)
+  # add_oneoff_costs(oneoff) %>%
+  # add_recurring_cost(recurring_costs) %>%
+  # add_recurring_cost(recurring_costs) %>%
+  # add_user_variable_costs(users, user_variable_costs) %>%
+  # add_user_variable_costs(users, user_variable_costs) %>%
+  # add_staff_utilisation(staff_utilisation, rate_card) %>%
+  # add_staff_utilisation(staff_utilisation, rate_card)
 
 # Run model
 cost_model <- run_cost_model(cost_model)
+
+cost_model$cost_dataframe
 
 cost_model$cost_dataframe %>%
   arrange(category_3, date)

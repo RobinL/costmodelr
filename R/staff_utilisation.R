@@ -69,16 +69,19 @@ get_staff_line_item <- function(col, staff_utilisation, rate_card, key_dates) {
   this_staff_line_item
 }
 
-get_staff_line_item_id <- function(cost_model, col,rate_card) {
+get_staff_line_item_id <- function(col,cost_model,rate_card) {
   cols_to_keep <- cost_model$categorisation_columns
   id <- staff_u_id_to_rate_card_id(col)
   rate_card[rate_card$id==id,cols_to_keep]
 
 }
 
-process_staff_utilisation <- function(cost_model){
-  staff_utilisation <-   cost_model$registered_modules$staff_utilisation$staff_utilisation
-  rate_card <-   cost_model$registered_modules$staff_utilisation$rate_card
+process_staff_utilisation <- function(cost_model, this_module){
+
+  id_prefix <- paste0("su_", this_module$module_number, "_")
+
+  staff_utilisation <-   this_module$staff_utilisation
+  rate_card <-   this_module$rate_card
   key_dates <- cost_model$key_dates
 
   stop_duplicated_dates(staff_utilisation)
@@ -95,20 +98,45 @@ process_staff_utilisation <- function(cost_model){
     message("Note: Day rates for staff are assumed to apply 5 days per week")
   }
 
-  for (col in staff_line_items) {
-    id <- paste0("su_", col)
 
-    this_li <- get_staff_line_item(col, staff_utilisation, rate_card, key_dates)
-    this_li$id <- id
-    new_chunks[[id]] <- this_li
+  # new_chunks <- oneoff_cost_assumptions %>%
+  #   purrr::by_row(get_staff_line_item, key_dates=cost_model$key_dates, .labels=FALSE, .to = "tibbles") %$%
+  #   dplyr::bind_rows(tibbles) # Note that the tibbles column is a list-column
+  #
+  # # Append all new chunk rows to existing chunks
+  # cost_model$chunks <- dplyr::bind_rows(new_chunks, cost_model$chunks)
+  #
+  # new_ids <- oneoff_cost_assumptions %>%
+  #   purrr::by_row(get_oneoff_cost_id, cost_model=cost_model, .labels=FALSE, .to = "tibbles") %$%
+  #   dplyr::bind_rows(tibbles)
+  #
+  # cost_model$id_lookup <- dplyr::bind_rows(new_ids, cost_model$id_lookup)
+  #
+  # cost_model
 
-    this_id <- get_staff_line_item_id(cost_model, col, rate_card)
-    this_id$id <- id
-    new_ids[[id]] <- this_id
+
+  ids <- paste0(id_prefix, staff_line_items)
+  ids_staff_line_item_map <- as.list(staff_line_items) %>% setNames(ids)
+
+  new_chunks_list <- ids_staff_line_item_map %>%
+    purrr::map(get_staff_line_item, staff_utilisation = staff_utilisation, rate_card = rate_card, key_dates=key_dates)
+
+  # The IDs need to be unique to this run (i.e. if add_staff_utilisation is run several times, we want to avoid duplicated ids)
+  name_to_id <- function(chunk, id) {
+    chunk$id <- id
+    chunk
   }
 
-  cost_model$chunks <- append(cost_model$chunks, new_chunks)
-  cost_model$id_lookup <- append(cost_model$id_lookup, new_ids)
+  new_chunks <- purrr::map2(new_chunks_list, names(new_chunks_list), name_to_id)
+
+  new_ids_list <-  ids_staff_line_item_map %>%
+    purrr::map(get_staff_line_item_id, cost_model = cost_model, rate_card = rate_card)
+
+  new_ids <- purrr::map2(new_ids_list, names(new_ids_list), name_to_id)
+
+
+  cost_model$chunks <- dplyr::bind_rows(cost_model$chunks, new_chunks)
+  cost_model$id_lookup <- dplyr::bind_rows(cost_model$id_lookup, new_ids)
 
   cost_model
 }
@@ -117,7 +145,6 @@ process_staff_utilisation <- function(cost_model){
 #'
 #' @export
 add_staff_utilisation <- function(cost_model, staff_utilisation, rate_card) {
-  cost_model$registered_modules$staff_utilisation <- list()
 
   # Check that currency columns are numeric
   stop_if_nonnumeric(rate_card, c("price_in_original_currency","annual_percentage_increase"))
@@ -125,13 +152,22 @@ add_staff_utilisation <- function(cost_model, staff_utilisation, rate_card) {
   # Check that the date column is of type date
   stop_if_not_date(staff_utilisation)
 
+  this_module <- list()
+  # If this is the first time we've called add_oneoff_costs, then register a new module, otherwise append new data
+
+  this_module$module_number <- length(cost_model$registered_modules)
+
   staff_utilisation <- convert_excel_dates_in_df(staff_utilisation)
   rate_card <- convert_excel_dates_in_df(rate_card)
 
-  cost_model$registered_modules$staff_utilisation$staff_utilisation <- staff_utilisation
-  cost_model$registered_modules$staff_utilisation$rate_card <- rate_card
-  cost_model$registered_modules$staff_utilisation$process_module <- process_staff_utilisation
+  this_module$staff_utilisation <- staff_utilisation
+  this_module$rate_card <- rate_card
+  this_module$process_module <- process_staff_utilisation
+
+  cost_model$registered_modules %<>% lappend(this_module)
+
   cost_model
+
 }
 
 

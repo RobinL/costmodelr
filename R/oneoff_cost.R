@@ -10,7 +10,7 @@ get_oneoff_cost_chunk <- function(assumption_row, key_dates) {
   assumption_row$price_gbp <- assumption_row$price_in_original_currency * get_xr(assumption_row$currency, "GBP")
 
   return_columns <- c("date", "id", "quantity", "price_gbp", "real_or_nominal")
-  assumption_row[return_columns]
+  tibble::as_data_frame(assumption_row[return_columns])
 }
 
 #' Get oneoff costs id
