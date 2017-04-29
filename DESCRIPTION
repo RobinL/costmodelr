@@ -13,7 +13,6 @@ Imports:
   tibble,
   dplyr,
   lubridate,
-  XLConnect,
   zoo,
   memoise,
   quantmod,
@@ -22,7 +21,9 @@ Imports:
   reshape2,
   magrittr,
   DT,
-  purrr
+  purrr,
+  hierarchicalbubble
+Remotes: RobinL/hierarchicalbubble
 RoxygenNote: 6.0.1
 Roxygen: list(markdown = TRUE)
 Suggests: knitr,

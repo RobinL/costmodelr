@@ -13,50 +13,46 @@ library(lubridate)
 library(readr)
 library(magrittr)
 library(formattable)
-library(threelittlecircles)
+library(hierarchicalbubble)
 
 
 # Read in assumptions from files
 
 key_dates <- readr::read_csv("/Users/robinlinacre/Documents/r_projects/final_cost_model/assumptions/key_dates.csv", col_types=readr::cols())
 recurring_costs =  readr::read_csv( "/Users/robinlinacre/Documents/r_projects/final_cost_model/assumptions/recurring_cost.csv", col_types=readr::cols())
-recurring_costs
-staff_utilisation <- readr::read_csv( "/Users/robinlinacre/Documents/r_projects/final_cost_model/assumptions/staff_utilisation_actuals.csv", col_types=readr::cols())
+staff_utilisation <- readr::read_csv( "/Users/robinlinacre/Documents/r_projects/final_cost_model/assumptions/staff_utilisation_forecast.csv", col_types=readr::cols())
 
-rate_card <- readr::read_csv( "/Users/robinlinacre/Documents/r_projects/final_cost_model/assumptions/rate_card.csv", col_types=readr::cols())
+rate_card <- readr::read_csv( "/Users/robinlinacre/Documents/r_projects/final_cost_model/assumptions/rate_card_forecast.csv", col_types=readr::cols())
 
 user_variable_costs <- readr::read_csv( "/Users/robinlinacre/Documents/r_projects/final_cost_model/assumptions/user_variable_costs.csv", col_types=readr::cols())
 users <- readr::read_csv( "/Users/robinlinacre/Documents/r_projects/final_cost_model/assumptions/users.csv", col_types=readr::cols())
 
-oneoff <- readr::read_csv( "/Users/robinlinacre/Documents/r_projects/final_cost_model/assumptions/oneoff_costs.csv", col_types=readr::cols())
+oneoff <- readr::read_csv( "/Users/robinlinacre/Documents/r_projects/final_cost_model/assumptions/oneoff_costs_actual.csv", col_types=readr::cols())
 
 
 # Add each set of assumptions to model
 cost_model <- create_cost_model(key_dates) %>%
-  add_oneoff_costs(oneoff)
-  # add_oneoff_costs(oneoff) %>%
-  # add_recurring_cost(recurring_costs) %>%
-  # add_recurring_cost(recurring_costs) %>%
-  # add_user_variable_costs(users, user_variable_costs) %>%
-  # add_user_variable_costs(users, user_variable_costs) %>%
-  # add_staff_utilisation(staff_utilisation, rate_card) %>%
-  # add_staff_utilisation(staff_utilisation, rate_card)
+  add_oneoff_costs(oneoff) %>%
+  add_oneoff_costs(oneoff) %>%
+  add_recurring_cost(recurring_costs) %>%
+  add_recurring_cost(recurring_costs) %>%
+  add_user_variable_costs(users, user_variable_costs) %>%
+  add_user_variable_costs(users, user_variable_costs) %>%
+  add_staff_utilisation(staff_utilisation, rate_card) %>%
+  add_staff_utilisation(staff_utilisation, rate_card)
 
 # Run model
 cost_model <- run_cost_model(cost_model)
 
-cost_model$cost_dataframe
+cost_model$cost_dataframe %>%
+  group_by(category_1, category_2, category_3) %>%
+  summarise(value = sum(cost_gbp_nominal))
 
 cost_model$cost_dataframe %>%
   arrange(category_3, date)
 
-
 shiny_vis(cost_model)
-
-cost_model$id_lookup
-
-cost_model$chunks
-
+shiny_bubble(cost_model)
 
 cost_model <- get_cumulative_costs(cost_model, "category_1")
 

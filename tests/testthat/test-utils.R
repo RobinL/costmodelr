@@ -17,12 +17,7 @@ test_that("test posixt_cols_to_date", {
   expect_false(all(sapply(df2,class) == "Date"))
 })
 
-test_that("read_worksheet_from_file_and_tidy",{
-  df <- read_worksheet_from_file_and_tidy("key_dates.xlsx", "key_dates")
-  expect_equal(class(df)[1], "tbl_df")
-  expect_equal(class(df$date), "Date")
-  expect_equal(class(df$name), "character")
-})
+
 
 test_that("stop_duplicated_dates", {
   df <- tibble::data_frame(a = as.Date(c("2017-01-01", "2017-01-01")))

@@ -17,15 +17,6 @@ posixt_cols_to_date <- function(df) {
 }
 
 
-#' Read a worksheet from an Excel file and convert to a tibble.
-#'
-#' This function also ensures that all relevant columns contain dates rather than datetimes.
-#' @export
-read_worksheet_from_file_and_tidy <- function(path, sheetname) {
-  df <- XLConnect::readWorksheetFromFile(path, sheetname)
-  df <- posixt_cols_to_date(df)
-  tibble::as_tibble(df)
-}
 
 #' Check that there aren't any duplicated dates
 #'

@@ -12,7 +12,6 @@
 #' @export
 shiny_vis <- function(cost_model) {
 
-
   key_date_cat_cols <- names(cost_model$key_dates)[names(cost_model$key_dates) != "date"]
   cat_choices <- c(cost_model$categorisation_columns, key_date_cat_cols)
   cat_choices <- cat_choices[cat_choices != "id"]
@@ -62,6 +61,7 @@ shiny_vis <- function(cost_model) {
                 shiny::fluidRow(vegalite::vegaliteOutput("basic_barchart"))
               )
             ),
+
             shiny::fluidRow(
               shiny::column(4,
                 shiny::fluidRow(shiny::h4("Cross tabulation of costs across all dates, nominal £",align="center")),
@@ -141,6 +141,8 @@ shiny_vis <- function(cost_model) {
 
 
       })
+
+
 
 
       output$pivot <- rpivotTable::renderRpivotTable({
