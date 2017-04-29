@@ -26,6 +26,8 @@ get_user_variable_costs_chunk <- function(assumptions_list, users, key_dates) {
                                             col_to_increase="price_gbp")
   }
 
+  df <- df %>%
+    dplyr::filter(quantity != 0)
   df
 }
 

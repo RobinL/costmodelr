@@ -131,11 +131,7 @@ process_staff_utilisation <- function(cost_model, this_module){
 #' @export
 add_staff_utilisation <- function(cost_model, staff_utilisation, rate_card) {
 
-  # Check that currency columns are numeric
-  stop_if_nonnumeric(rate_card, c("price_in_original_currency","annual_percentage_increase"))
 
-  # Check that the date column is of type date
-  stop_if_not_date(staff_utilisation)
 
   this_module <- list()
   # If this is the first time we've called add_oneoff_costs, then register a new module, otherwise append new data
@@ -144,6 +140,12 @@ add_staff_utilisation <- function(cost_model, staff_utilisation, rate_card) {
 
   staff_utilisation <- convert_excel_dates_in_df(staff_utilisation)
   rate_card <- convert_excel_dates_in_df(rate_card)
+
+  # Check that currency columns are numeric
+  stop_if_nonnumeric(rate_card, c("price_in_original_currency","annual_percentage_increase"))
+
+  # Check that the date column is of type date
+  stop_if_not_date(staff_utilisation)
 
   this_module$staff_utilisation <- staff_utilisation
   this_module$rate_card <- rate_card
