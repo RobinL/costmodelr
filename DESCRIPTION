@@ -23,7 +23,7 @@ Imports:
   DT,
   purrr,
   hierarchicalbubble
-Remotes: RobinL/hierarchicalbubble
+Remotes: RobinL/hierarchical_bubble_r_html_widget
 RoxygenNote: 6.0.1
 Roxygen: list(markdown = TRUE)
 Suggests: knitr,
