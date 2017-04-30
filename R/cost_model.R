@@ -5,7 +5,7 @@ create_cost_model <- function(key_dates) {
   cost_model <- list()
   cost_model$chunks <- NULL
   cost_model$id_lookup <- NULL
-  cost_model$key_dates <- key_dates
+  cost_model$key_dates <- convert_excel_dates_in_df(key_dates)
   cost_model$base_date <- NULL
 
 

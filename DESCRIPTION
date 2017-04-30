@@ -22,7 +22,9 @@ Imports:
   magrittr,
   DT,
   purrr,
-  hierarchicalbubble
+  hierarchicalbubble,
+  formattable,
+  rpivotTable
 Remotes: RobinL/hierarchical_bubble_r_html_widget
 RoxygenNote: 6.0.1
 Roxygen: list(markdown = TRUE)

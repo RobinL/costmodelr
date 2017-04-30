@@ -174,7 +174,7 @@ get_cumulative_costs <- function(cost_model, groupby_vars) {
 
   # Get all dates
   all_days <- kd_all_dates_days(cost_model$key_dates)
-  all_days <- data_frame(date = all_days, crossjoin_col = 1)
+  all_days <- tibble::data_frame(date = all_days, crossjoin_col = 1)
 
   # All categories
   cats <- cost_model$cost_dataframe %>%
@@ -182,7 +182,7 @@ get_cumulative_costs <- function(cost_model, groupby_vars) {
     dplyr::summarise(crossjoin_col = 1)
 
   # A row for each category and each date
-  all_combinations <- cats %>% left_join(all_days)
+  all_combinations <- cats %>% dplyr::left_join(all_days)
 
   # Grab required cost information from cost dataframe
   costs_to_keep <- cost_model$cost_dataframe %>%
