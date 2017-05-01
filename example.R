@@ -53,7 +53,9 @@ cost_model$cost_dataframe %>%
 shiny_vis(cost_model)
 shiny_bubble(cost_model)
 
-
-
+rmarkdown::render("vignettes/assumption_types.Rmd", output_format="md_document", output_file = "../README.md", output_options=list("variant" = "markdown_github"))
+x <- readLines("readme.md")
+y <- gsub( "../README_files/f", "../master/README_files/f", x )
+cat(y, file="readme.md", sep="\n")
 
 

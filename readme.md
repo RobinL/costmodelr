@@ -13,8 +13,8 @@ Package basics
 The `costmodelr` package provides a set of utility functions for turning a set of cost assumptions into a [tidy](http://vita.had.co.nz/papers/tidy-data.pdf) table that has one row for each 'line item' (type of cost), for each date that a cost in incurred.
 
 Here is an example of the format of the output dataframe:
-
-![](../README_files/figure-markdown_github/unnamed-chunk-2-1.png)
+  
+![](../master/README_files/figure-markdown_github/unnamed-chunk-2-1.png)
 
 Since this dataframe is tidy, it is easy to perform aggregations and filtering, and products tabular and graphical output that summarises forecasted costs.
 
@@ -29,7 +29,7 @@ The cost model should be iniitalised with 'key dates', which control the time pe
 
 Key dates look like this:
 
-![](../README_files/figure-markdown_github/unnamed-chunk-3-1.png)
+![](../master/README_files/figure-markdown_github/unnamed-chunk-3-1.png)
 
 ### One off costs
 
@@ -37,11 +37,11 @@ One off costs occur only once. `costmodelr` does not need to perform complex com
 
 The input format is as follows:
 
-![](../README_files/figure-markdown_github/unnamed-chunk-4-1.png)
+![](../master/README_files/figure-markdown_github/unnamed-chunk-4-1.png)
 
 The output would look as follows:
 
-![](../README_files/figure-markdown_github/unnamed-chunk-5-1.png)
+![](../master/README_files/figure-markdown_github/unnamed-chunk-5-1.png)
 
 ### Recurring costs
 
@@ -49,11 +49,11 @@ Allows you to model costs that happen at a given frequency. Includes options tha
 
 The input format is as follows:
 
-![](../README_files/figure-markdown_github/unnamed-chunk-6-1.png)
+![](../master/README_files/figure-markdown_github/unnamed-chunk-6-1.png)
 
 The output would look as follows:
 
-![](../README_files/figure-markdown_github/unnamed-chunk-7-1.png)
+![](../master/README_files/figure-markdown_github/unnamed-chunk-7-1.png)
 
 ### Staff utilisation
 
@@ -63,17 +63,17 @@ Two different sets of assumptions are needed here: % utilisation, and a ratecard
 
 The ratecard looks like this
 
-![](../README_files/figure-markdown_github/unnamed-chunk-8-1.png)
+![](../master/README_files/figure-markdown_github/unnamed-chunk-8-1.png)
 
 The staff utilisation assumptions look like this:
 
     ## Warning: Duplicated column names deduplicated: 'TA' => 'TA_1' [3]
 
-![](../README_files/figure-markdown_github/unnamed-chunk-9-1.png)
+![](../master/README_files/figure-markdown_github/unnamed-chunk-9-1.png)
 
 The output looks like this:
 
-![](../README_files/figure-markdown_github/unnamed-chunk-10-1.png)
+![](../master/README_files/figure-markdown_github/unnamed-chunk-10-1.png)
 
 (Note only the first 10 rows of the output are show. Note also costs are spread equally throughout the week, so £50 a week = ~£7.14 a day, including Sat and Sun)
 
@@ -87,15 +87,15 @@ The input assumptions look like this:
 
 Number of users (this will be linearly interpolated):
 
-![](../README_files/figure-markdown_github/unnamed-chunk-11-1.png)
+![](../master/README_files/figure-markdown_github/unnamed-chunk-11-1.png)
 
 Cost assumptions:
 
-![](../README_files/figure-markdown_github/unnamed-chunk-12-1.png)
+![](../master/README_files/figure-markdown_github/unnamed-chunk-12-1.png)
 
 The output looks like this:
 
-![](../README_files/figure-markdown_github/unnamed-chunk-13-1.png)
+![](../master/README_files/figure-markdown_github/unnamed-chunk-13-1.png)
 
 (again, only the first 10 records are shown)
 
