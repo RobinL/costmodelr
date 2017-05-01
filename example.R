@@ -56,6 +56,11 @@ shiny_bubble(cost_model)
 rmarkdown::render("vignettes/assumption_types.Rmd", output_format="md_document", output_file = "../README.md", output_options=list("variant" = "markdown_github"))
 x <- readLines("readme.md")
 y <- gsub( "../README_files/f", "../master/README_files/f", x )
+y <- c("[![Build Status](https://travis-ci.org/RobinL/costmodelr.svg?branch=master)](https://travis-ci.org/RobinL/costmodelr)",y)
+y <- c("[![Coverage Status](https://img.shields.io/codecov/c/github/RobinL/costmodelr/master.svg)](https://codecov.io/github/RobinL/costmodelr?branch=master)",y)
+
+
+
 cat(y, file="readme.md", sep="\n")
 
 
