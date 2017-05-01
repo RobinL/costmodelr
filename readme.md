@@ -1,7 +1,3 @@
-``` r
-library(DT)
-```
-
 Introduction
 ------------
 
@@ -10,7 +6,7 @@ This document presents and example of how to use the `costmodelr` package.
 Package basics
 --------------
 
-The `costmodelr` package provides a set of utility functions for turning a set of cost assumptions into a [tidy](http://vita.had.co.nz/papers/tidy-data.pdf) table that has one row for each 'line item' (type of cost), for each date that a cost in incurred.
+The `costmodelr` package provides a set of utility functions for turning a set of cost assumptions into a [tidy](http://vita.had.co.nz/papers/tidy-data.pdf) table that has one row for each cost on each date that cost is incurred.
 
 Here is an example of the format of the output dataframe:
 
@@ -35,7 +31,11 @@ The cost model should be iniitalised with 'key dates', which control the time pe
 
 Key dates look like this:
 
-![](../master/README_files/figure-markdown_github/unnamed-chunk-5-1.png)
+| date       | period |
+|:-----------|:-------|
+| 2017-01-01 | alpha  |
+| 2017-01-05 | beta   |
+| 2017-01-10 | live   |
 
 ### One off costs
 
@@ -51,7 +51,11 @@ The input format is as follows:
 
 The output would look as follows:
 
-![](../master/README_files/figure-markdown_github/unnamed-chunk-7-1.png)
+| date       | id       |  quantity| category\_1 | category\_2 | category\_3 |  gdp\_deflator|  green\_book\_discount|  cost\_gbp\_real|  cost\_gbp\_nominal| period |
+|:-----------|:---------|---------:|:------------|:------------|:------------|--------------:|----------------------:|----------------:|-------------------:|:-------|
+| 2017-01-02 | oo\_0\_1 |         4| a           | b           | c           |       1.028260|               1.063935|              200|            205.6521| alpha  |
+| 2017-01-04 | oo\_0\_2 |         2| a           | b           | d           |       1.028373|               1.064135|              200|            205.6747| alpha  |
+| 2017-01-10 | oo\_0\_3 |         1| b           | b           | d           |       1.028713|               1.064737|              150|            154.3069| live   |
 
 ### Recurring costs
 
@@ -59,11 +63,27 @@ Allows you to model costs that happen at a given frequency. Includes options tha
 
 The input format is as follows:
 
-![](../master/README_files/figure-markdown_github/unnamed-chunk-8-1.png)
+|  price\_in\_original\_currency| real\_or\_nominal | currency |  quantity| frequency | first\_date |  growth\_in\_cost\_percent\_per\_annum|  growth\_in\_cost\_absolute\_per\_annum|  growth\_in\_quantity\_percent\_per\_annum|  growth\_in\_quantity\_absolute\_per\_annum| category\_1 | category\_2 | category\_3 |
+|------------------------------:|:------------------|:---------|---------:|:----------|:------------|--------------------------------------:|---------------------------------------:|------------------------------------------:|-------------------------------------------:|:------------|:------------|:------------|
+|                           1000| real              | GBP      |         1| day       | 2017-01-01  |                               36.87754|                                       0|                                          0|                                        0.00| capital     | hardware    | cpu         |
+|                           1000| real              | GBP      |         2| day       | 2017-01-09  |                                0.00000|                                       0|                                          0|                                      365.25| capital     | software    | analysis    |
 
 The output would look as follows:
 
-![](../master/README_files/figure-markdown_github/unnamed-chunk-9-1.png)
+| date       | id       |  quantity| category\_1 | category\_2 | category\_3 |  gdp\_deflator|  green\_book\_discount|  cost\_gbp\_real|  cost\_gbp\_nominal| period |
+|:-----------|:---------|---------:|:------------|:------------|:------------|--------------:|----------------------:|----------------:|-------------------:|:-------|
+| 2017-01-01 | rc\_0\_1 |         1| capital     | hardware    | cpu         |       1.028204|               1.063835|         1000.000|            1028.204| alpha  |
+| 2017-01-02 | rc\_0\_1 |         1| capital     | hardware    | cpu         |       1.028260|               1.063935|         1010.000|            1038.543| alpha  |
+| 2017-01-03 | rc\_0\_1 |         1| capital     | hardware    | cpu         |       1.028317|               1.064035|         1020.100|            1048.986| alpha  |
+| 2017-01-04 | rc\_0\_1 |         1| capital     | hardware    | cpu         |       1.028373|               1.064135|         1030.301|            1059.534| alpha  |
+| 2017-01-05 | rc\_0\_1 |         1| capital     | hardware    | cpu         |       1.028430|               1.064236|         1040.604|            1070.188| beta   |
+| 2017-01-06 | rc\_0\_1 |         1| capital     | hardware    | cpu         |       1.028487|               1.064336|         1051.010|            1080.950| beta   |
+| 2017-01-07 | rc\_0\_1 |         1| capital     | hardware    | cpu         |       1.028543|               1.064436|         1061.520|            1091.819| beta   |
+| 2017-01-08 | rc\_0\_1 |         1| capital     | hardware    | cpu         |       1.028600|               1.064536|         1072.135|            1102.798| beta   |
+| 2017-01-09 | rc\_0\_1 |         1| capital     | hardware    | cpu         |       1.028656|               1.064637|         1082.857|            1113.887| beta   |
+| 2017-01-10 | rc\_0\_1 |         1| capital     | hardware    | cpu         |       1.028713|               1.064737|         1093.685|            1125.088| live   |
+| 2017-01-09 | rc\_0\_2 |         2| capital     | software    | analysis    |       1.028656|               1.064637|         2000.000|            2057.313| beta   |
+| 2017-01-10 | rc\_0\_2 |         3| capital     | software    | analysis    |       1.028713|               1.064737|         3000.000|            3086.139| live   |
 
 ### Staff utilisation
 
@@ -73,17 +93,55 @@ Two different sets of assumptions are needed here: % utilisation, and a ratecard
 
 The ratecard looks like this
 
-![](../master/README_files/figure-markdown_github/unnamed-chunk-10-1.png)
+|  price\_in\_original\_currency| real\_or\_nominal | id  | currency | price\_frequency |  annual\_percentage\_increase| category\_1 | category\_2   | category\_3         |
+|------------------------------:|:------------------|:----|:---------|:-----------------|-----------------------------:|:------------|:--------------|:--------------------|
+|                             20| real              | TA  | GBP      | working\_day     |                             0| staff       | technical     | technical architect |
+|                             10| real              | PM  | GBP      | working\_day     |                             0| staff       | non technical | product manager     |
 
 The staff utilisation assumptions look like this:
 
     ## Warning: Duplicated column names deduplicated: 'TA' => 'TA_1' [3]
 
-![](../master/README_files/figure-markdown_github/unnamed-chunk-11-1.png)
+| date       |   TA|  TA\_1|    PM|
+|:-----------|----:|------:|-----:|
+| 2017-01-01 |  0.5|      1|  0.25|
+| 2017-01-05 |  1.0|      1|  0.25|
+| 2017-01-10 |  0.5|      1|  0.25|
 
 The output looks like this:
 
-![](../master/README_files/figure-markdown_github/unnamed-chunk-12-1.png)
+| date       | id           |  quantity| category\_1 | category\_2   | category\_3         |  gdp\_deflator|  green\_book\_discount|  cost\_gbp\_real|  cost\_gbp\_nominal| period |
+|:-----------|:-------------|---------:|:------------|:--------------|:--------------------|--------------:|----------------------:|----------------:|-------------------:|:-------|
+| 2017-01-01 | su\_0\_TA    |      0.50| staff       | technical     | technical architect |       1.028204|               1.063835|         7.142857|            7.344312| alpha  |
+| 2017-01-02 | su\_0\_TA    |      0.50| staff       | technical     | technical architect |       1.028260|               1.063935|         7.142857|            7.344716| alpha  |
+| 2017-01-03 | su\_0\_TA    |      0.50| staff       | technical     | technical architect |       1.028317|               1.064035|         7.142857|            7.345120| alpha  |
+| 2017-01-04 | su\_0\_TA    |      0.50| staff       | technical     | technical architect |       1.028373|               1.064135|         7.142857|            7.345524| alpha  |
+| 2017-01-05 | su\_0\_TA    |      1.00| staff       | technical     | technical architect |       1.028430|               1.064236|        14.285714|           14.691857| beta   |
+| 2017-01-06 | su\_0\_TA    |      1.00| staff       | technical     | technical architect |       1.028487|               1.064336|        14.285714|           14.692665| beta   |
+| 2017-01-07 | su\_0\_TA    |      1.00| staff       | technical     | technical architect |       1.028543|               1.064436|        14.285714|           14.693473| beta   |
+| 2017-01-08 | su\_0\_TA    |      1.00| staff       | technical     | technical architect |       1.028600|               1.064536|        14.285714|           14.694281| beta   |
+| 2017-01-09 | su\_0\_TA    |      1.00| staff       | technical     | technical architect |       1.028656|               1.064637|        14.285714|           14.695090| beta   |
+| 2017-01-10 | su\_0\_TA    |      0.50| staff       | technical     | technical architect |       1.028713|               1.064737|         7.142857|            7.347949| live   |
+| 2017-01-01 | su\_0\_TA\_1 |      1.00| staff       | technical     | technical architect |       1.028204|               1.063835|        14.285714|           14.688624| alpha  |
+| 2017-01-02 | su\_0\_TA\_1 |      1.00| staff       | technical     | technical architect |       1.028260|               1.063935|        14.285714|           14.689432| alpha  |
+| 2017-01-03 | su\_0\_TA\_1 |      1.00| staff       | technical     | technical architect |       1.028317|               1.064035|        14.285714|           14.690240| alpha  |
+| 2017-01-04 | su\_0\_TA\_1 |      1.00| staff       | technical     | technical architect |       1.028373|               1.064135|        14.285714|           14.691049| alpha  |
+| 2017-01-05 | su\_0\_TA\_1 |      1.00| staff       | technical     | technical architect |       1.028430|               1.064236|        14.285714|           14.691857| beta   |
+| 2017-01-06 | su\_0\_TA\_1 |      1.00| staff       | technical     | technical architect |       1.028487|               1.064336|        14.285714|           14.692665| beta   |
+| 2017-01-07 | su\_0\_TA\_1 |      1.00| staff       | technical     | technical architect |       1.028543|               1.064436|        14.285714|           14.693473| beta   |
+| 2017-01-08 | su\_0\_TA\_1 |      1.00| staff       | technical     | technical architect |       1.028600|               1.064536|        14.285714|           14.694281| beta   |
+| 2017-01-09 | su\_0\_TA\_1 |      1.00| staff       | technical     | technical architect |       1.028656|               1.064637|        14.285714|           14.695090| beta   |
+| 2017-01-10 | su\_0\_TA\_1 |      1.00| staff       | technical     | technical architect |       1.028713|               1.064737|        14.285714|           14.695898| live   |
+| 2017-01-01 | su\_0\_PM    |      0.25| staff       | non technical | product manager     |       1.028204|               1.063835|         1.785714|            1.836078| alpha  |
+| 2017-01-02 | su\_0\_PM    |      0.25| staff       | non technical | product manager     |       1.028260|               1.063935|         1.785714|            1.836179| alpha  |
+| 2017-01-03 | su\_0\_PM    |      0.25| staff       | non technical | product manager     |       1.028317|               1.064035|         1.785714|            1.836280| alpha  |
+| 2017-01-04 | su\_0\_PM    |      0.25| staff       | non technical | product manager     |       1.028373|               1.064135|         1.785714|            1.836381| alpha  |
+| 2017-01-05 | su\_0\_PM    |      0.25| staff       | non technical | product manager     |       1.028430|               1.064236|         1.785714|            1.836482| beta   |
+| 2017-01-06 | su\_0\_PM    |      0.25| staff       | non technical | product manager     |       1.028487|               1.064336|         1.785714|            1.836583| beta   |
+| 2017-01-07 | su\_0\_PM    |      0.25| staff       | non technical | product manager     |       1.028543|               1.064436|         1.785714|            1.836684| beta   |
+| 2017-01-08 | su\_0\_PM    |      0.25| staff       | non technical | product manager     |       1.028600|               1.064536|         1.785714|            1.836785| beta   |
+| 2017-01-09 | su\_0\_PM    |      0.25| staff       | non technical | product manager     |       1.028656|               1.064637|         1.785714|            1.836886| beta   |
+| 2017-01-10 | su\_0\_PM    |      0.25| staff       | non technical | product manager     |       1.028713|               1.064737|         1.785714|            1.836987| live   |
 
 (Note only the first 10 rows of the output are show. Note also costs are spread equally throughout the week, so £50 a week = ~£7.14 a day, including Sat and Sun)
 
@@ -97,15 +155,67 @@ The input assumptions look like this:
 
 Number of users (this will be linearly interpolated):
 
-![](../master/README_files/figure-markdown_github/unnamed-chunk-13-1.png)
+| date       |  num\_users|
+|:-----------|-----------:|
+| 2017-01-01 |           1|
+| 2017-01-03 |           1|
+| 2017-01-05 |           1|
+| 2017-01-06 |           1|
+| 2017-01-07 |           2|
 
 Cost assumptions:
 
-![](../master/README_files/figure-markdown_github/unnamed-chunk-14-1.png)
+|  price\_in\_original\_currency| real\_or\_nominal | currency | pricefrequency |  fixed\_initial\_quantity\_per\_user|  growth\_in\_cost\_percent\_per\_annum|  growth\_in\_cost\_absolute\_per\_annum|  growth\_in\_quantity\_absolute\_per\_annum\_per\_user| category\_1    | category\_2 | category\_3 |
+|------------------------------:|:------------------|:---------|:---------------|------------------------------------:|--------------------------------------:|---------------------------------------:|------------------------------------------------------:|:---------------|:------------|:------------|
+|                             60| real              | GBP      | month          |                                    0|                                  0.000|                                       0|                                                 365.25| infrastructure | storage     | amazon s3   |
+|                             30| real              | GBP      | month          |                                    0|                                  0.000|                                       0|                                                 730.50| infrastructure | compute     | ec2         |
+|                              1| real              | GBP      | day            |                                   10|                                  0.000|                                       0|                                                   0.00| infrastructure | accounts    | github      |
+|                             14| real              | GBP      | week           |                                  100|                               1383.244|                                       0|                                                 365.25| infrastructure | storate     | ebs         |
 
 The output looks like this:
 
-![](../master/README_files/figure-markdown_github/unnamed-chunk-15-1.png)
+| date       | id        |  quantity| category\_1    | category\_2 | category\_3 |  gdp\_deflator|  green\_book\_discount|  cost\_gbp\_real|  cost\_gbp\_nominal| period |
+|:-----------|:----------|---------:|:---------------|:------------|:------------|--------------:|----------------------:|----------------:|-------------------:|:-------|
+| 2017-01-01 | uvc\_0\_1 |         1| infrastructure | storage     | amazon s3   |       1.028204|               1.063835|         1.971253|            2.026849| alpha  |
+| 2017-01-02 | uvc\_0\_1 |         2| infrastructure | storage     | amazon s3   |       1.028260|               1.063935|         3.942505|            4.053921| alpha  |
+| 2017-01-03 | uvc\_0\_1 |         3| infrastructure | storage     | amazon s3   |       1.028317|               1.064035|         5.913758|            6.081217| alpha  |
+| 2017-01-04 | uvc\_0\_1 |         4| infrastructure | storage     | amazon s3   |       1.028373|               1.064135|         7.885010|            8.108735| alpha  |
+| 2017-01-05 | uvc\_0\_1 |         5| infrastructure | storage     | amazon s3   |       1.028430|               1.064236|         9.856263|           10.136476| beta   |
+| 2017-01-06 | uvc\_0\_1 |         6| infrastructure | storage     | amazon s3   |       1.028487|               1.064336|        11.827515|           12.164440| beta   |
+| 2017-01-07 | uvc\_0\_1 |         8| infrastructure | storage     | amazon s3   |       1.028543|               1.064436|        15.770020|           16.220146| beta   |
+| 2017-01-08 | uvc\_0\_1 |        10| infrastructure | storage     | amazon s3   |       1.028600|               1.064536|        19.712526|           20.276298| beta   |
+| 2017-01-09 | uvc\_0\_1 |        12| infrastructure | storage     | amazon s3   |       1.028656|               1.064637|        23.655031|           24.332896| beta   |
+| 2017-01-10 | uvc\_0\_1 |        14| infrastructure | storage     | amazon s3   |       1.028713|               1.064737|        27.597536|           28.389940| live   |
+| 2017-01-01 | uvc\_0\_2 |         2| infrastructure | compute     | ec2         |       1.028204|               1.063835|         1.971253|            2.026849| alpha  |
+| 2017-01-02 | uvc\_0\_2 |         4| infrastructure | compute     | ec2         |       1.028260|               1.063935|         3.942505|            4.053921| alpha  |
+| 2017-01-03 | uvc\_0\_2 |         6| infrastructure | compute     | ec2         |       1.028317|               1.064035|         5.913758|            6.081217| alpha  |
+| 2017-01-04 | uvc\_0\_2 |         8| infrastructure | compute     | ec2         |       1.028373|               1.064135|         7.885010|            8.108735| alpha  |
+| 2017-01-05 | uvc\_0\_2 |        10| infrastructure | compute     | ec2         |       1.028430|               1.064236|         9.856263|           10.136476| beta   |
+| 2017-01-06 | uvc\_0\_2 |        12| infrastructure | compute     | ec2         |       1.028487|               1.064336|        11.827515|           12.164440| beta   |
+| 2017-01-07 | uvc\_0\_2 |        16| infrastructure | compute     | ec2         |       1.028543|               1.064436|        15.770020|           16.220146| beta   |
+| 2017-01-08 | uvc\_0\_2 |        20| infrastructure | compute     | ec2         |       1.028600|               1.064536|        19.712526|           20.276298| beta   |
+| 2017-01-09 | uvc\_0\_2 |        24| infrastructure | compute     | ec2         |       1.028656|               1.064637|        23.655031|           24.332896| beta   |
+| 2017-01-10 | uvc\_0\_2 |        28| infrastructure | compute     | ec2         |       1.028713|               1.064737|        27.597536|           28.389940| live   |
+| 2017-01-01 | uvc\_0\_3 |        10| infrastructure | accounts    | github      |       1.028204|               1.063835|        10.000000|           10.282037| alpha  |
+| 2017-01-02 | uvc\_0\_3 |        10| infrastructure | accounts    | github      |       1.028260|               1.063935|        10.000000|           10.282603| alpha  |
+| 2017-01-03 | uvc\_0\_3 |        10| infrastructure | accounts    | github      |       1.028317|               1.064035|        10.000000|           10.283168| alpha  |
+| 2017-01-04 | uvc\_0\_3 |        10| infrastructure | accounts    | github      |       1.028373|               1.064135|        10.000000|           10.283734| alpha  |
+| 2017-01-05 | uvc\_0\_3 |        10| infrastructure | accounts    | github      |       1.028430|               1.064236|        10.000000|           10.284300| beta   |
+| 2017-01-06 | uvc\_0\_3 |        10| infrastructure | accounts    | github      |       1.028487|               1.064336|        10.000000|           10.284865| beta   |
+| 2017-01-07 | uvc\_0\_3 |        20| infrastructure | accounts    | github      |       1.028543|               1.064436|        20.000000|           20.570862| beta   |
+| 2017-01-08 | uvc\_0\_3 |        20| infrastructure | accounts    | github      |       1.028600|               1.064536|        20.000000|           20.571994| beta   |
+| 2017-01-09 | uvc\_0\_3 |        20| infrastructure | accounts    | github      |       1.028656|               1.064637|        20.000000|           20.573125| beta   |
+| 2017-01-10 | uvc\_0\_3 |        20| infrastructure | accounts    | github      |       1.028713|               1.064737|        20.000000|           20.574257| live   |
+| 2017-01-01 | uvc\_0\_4 |       101| infrastructure | storate     | ebs         |       1.028204|               1.063835|       202.000000|          207.697148| alpha  |
+| 2017-01-02 | uvc\_0\_4 |       102| infrastructure | storate     | ebs         |       1.028260|               1.063935|       208.080000|          213.960396| alpha  |
+| 2017-01-03 | uvc\_0\_4 |       103| infrastructure | storate     | ebs         |       1.028317|               1.064035|       214.322400|          220.391331| alpha  |
+| 2017-01-04 | uvc\_0\_4 |       104| infrastructure | storate     | ebs         |       1.028373|               1.064135|       220.731264|          226.994159| alpha  |
+| 2017-01-05 | uvc\_0\_4 |       105| infrastructure | storate     | ebs         |       1.028430|               1.064236|       227.310754|          233.773190| beta   |
+| 2017-01-06 | uvc\_0\_4 |       106| infrastructure | storate     | ebs         |       1.028487|               1.064336|       234.065130|          240.732835| beta   |
+| 2017-01-07 | uvc\_0\_4 |       208| infrastructure | storate     | ebs         |       1.028543|               1.064436|       468.483566|          481.855546| beta   |
+| 2017-01-08 | uvc\_0\_4 |       210| infrastructure | storate     | ebs         |       1.028600|               1.064536|       482.447980|          496.245844| beta   |
+| 2017-01-09 | uvc\_0\_4 |       212| infrastructure | storate     | ebs         |       1.028656|               1.064637|       496.783577|          511.019544| beta   |
+| 2017-01-10 | uvc\_0\_4 |       214| infrastructure | storate     | ebs         |       1.028713|               1.064737|       511.499619|          526.186236| live   |
 
 (again, only the first 10 records are shown)
 

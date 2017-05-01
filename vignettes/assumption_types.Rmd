@@ -9,7 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r results='hide', message=FALSE, warning=FALSE}
+```{r results='hide', message=FALSE, warning=FALSE, echo=FALSE}
 library(DT)
 
 ```
@@ -20,7 +20,7 @@ This document presents and example of how to use the `costmodelr` package.
 
 ## Package basics
 
-The `costmodelr` package provides a set of utility functions for turning a set of cost assumptions into a [tidy](http://vita.had.co.nz/papers/tidy-data.pdf) table that has one row for each 'line item' (type of cost), for each date that a cost in incurred. 
+The `costmodelr` package provides a set of utility functions for turning a set of cost assumptions into a [tidy](http://vita.had.co.nz/papers/tidy-data.pdf) table that has one row for each cost on each date that cost is incurred. 
 
 Here is an example of the format of the output dataframe:
 
@@ -46,7 +46,8 @@ Key dates look like this:
 ```{r, echo=FALSE}
 
 df <- readr::read_csv(system.file("extdata", "key_dates_1.csv", package="costmodelr"), col_types=readr::cols())
-DT::datatable(df, options=list(scrollX = TRUE))
+# DT::datatable(df, options=list(scrollX = TRUE))
+knitr::kable(df)
 ```
 
 ### One off costs
@@ -69,7 +70,8 @@ cost_model <- costmodelr::create_cost_model(key_dates)
 oneoff_costs <- readr::read_csv(system.file("extdata", "oneoff_costs_1.csv", package="costmodelr"), col_types=readr::cols())
 cost_model <- costmodelr::add_oneoff_costs(cost_model, oneoff_costs)
 cost_model <- costmodelr::run_cost_model(cost_model)
-DT::datatable(cost_model$cost_dataframe, options=list(scrollX = TRUE))
+# DT::datatable(cost_model$cost_dataframe, options=list(scrollX = TRUE))
+knitr::kable(cost_model$cost_dataframe)
 ```
 
 
@@ -82,7 +84,8 @@ The input format is as follows:
 ```{r, echo=FALSE}
 
 df <- readr::read_csv(system.file("extdata", "recurring_cost_1.csv", package="costmodelr"), col_types=readr::cols())
-DT::datatable(df, options=list(scrollX = TRUE))
+# DT::datatable(df, options=list(scrollX = TRUE))
+knitr::kable(df)
 ```
 
 The output would look as follows:
@@ -93,7 +96,8 @@ cost_model <- costmodelr::create_cost_model(key_dates)
 recurring_costs <- readr::read_csv(system.file("extdata", "recurring_cost_1.csv", package="costmodelr"), col_types=readr::cols())
 cost_model <- costmodelr::add_recurring_cost(cost_model, recurring_costs)
 cost_model <- costmodelr::run_cost_model(cost_model)
-DT::datatable(cost_model$cost_dataframe, options=list(scrollX = TRUE))
+# DT::datatable(cost_model$cost_dataframe, options=list(scrollX = TRUE))
+knitr::kable(cost_model$cost_dataframe)
 
 ```
 
@@ -108,7 +112,8 @@ The ratecard looks like this
 ```{r, echo=FALSE}
 
 df <- readr::read_csv(system.file("extdata", "rate_card_1.csv", package="costmodelr"), col_types=readr::cols())
-DT::datatable(df, options=list(scrollX = TRUE))
+# DT::datatable(df, options=list(scrollX = TRUE))
+knitr::kable(df)
 ```
 
 The staff utilisation assumptions look like this:
@@ -116,7 +121,8 @@ The staff utilisation assumptions look like this:
 ```{r, echo=FALSE}
 
 df <- readr::read_csv(system.file("extdata", "staff_utilisation_1.csv", package="costmodelr"), col_types=readr::cols())
-DT::datatable(df, options=list(scrollX = TRUE))
+# DT::datatable(df, options=list(scrollX = TRUE))
+knitr::kable(df)
 ```
 
 The output looks like this:
@@ -130,7 +136,8 @@ staff_utilisation <- readr::read_csv(system.file("extdata", "staff_utilisation_1
 cost_model <- costmodelr::add_staff_utilisation(cost_model, staff_utilisation, rate_card)
 
 cost_model <- costmodelr::run_cost_model(cost_model)
-DT::datatable(cost_model$cost_dataframe, options=list(scrollX = TRUE))
+# DT::datatable(cost_model$cost_dataframe, options=list(scrollX = TRUE))
+knitr::kable(cost_model$cost_dataframe)
 
 ```
 
@@ -149,7 +156,8 @@ Number of users (this will be linearly interpolated):
 ```{r, echo=FALSE}
 
 df <- readr::read_csv(system.file("extdata", "users_1.csv", package="costmodelr"), col_types=readr::cols())
-DT::datatable(df, options=list(scrollX = TRUE))
+# DT::datatable(df, options=list(scrollX = TRUE))
+knitr::kable(df)
 ```
 
 Cost assumptions:
@@ -157,7 +165,8 @@ Cost assumptions:
 ```{r, echo=FALSE}
 
 df <- readr::read_csv(system.file("extdata", "user_variable_costs_1.csv", package="costmodelr"), col_types=readr::cols())
-DT::datatable(df, options=list(scrollX = TRUE))
+# DT::datatable(df, options=list(scrollX = TRUE))
+knitr::kable(df)
 ```
 
 The output looks like this:
@@ -171,7 +180,8 @@ user_variable_costs <- readr::read_csv(system.file("extdata", "user_variable_cos
 cost_model <- costmodelr::add_user_variable_costs(cost_model, users, user_variable_costs)
 
 cost_model <- costmodelr::run_cost_model(cost_model)
-DT::datatable(cost_model$cost_dataframe, options=list(scrollX = TRUE))
+# DT::datatable(cost_model$cost_dataframe, options=list(scrollX = TRUE))
+knitr::kable(cost_model$cost_dataframe)
 ```
 
 
