@@ -1,60 +1,151 @@
-[![Build Status](https://travis-ci.org/RobinL/costmodelr.svg?branch=master)](https://travis-ci.org/RobinL/costmodelr)
-[![Coverage Status](https://img.shields.io/codecov/c/github/RobinL/costmodelr/master.svg)](https://codecov.io/github/RobinL/costmodelr?branch=master)
+    library(DT)
 
-## Cost modelling in R
+Introduction
+------------
 
+This vignette runs through a full example of how to use the `costmodelr`
+package.
 
-This repo contains a framework for cost modelling in R.
+Package basics
+--------------
 
-The most up to date documentation can be found in the package vignette, which you can access in R by typing `browseVignettes("costmodelr")`
+The `costmodelr` package provides a set of utility functions for turning
+a set of cost assumptions into a
+[tidy](http://vita.had.co.nz/papers/tidy-data.pdf) table that has one
+row for each 'line item' (type of cost), for each date that a cost in
+incurred.
 
-It is based around several ideas:
+Here is an example of the format of the output dataframe:
 
-* A cost model is usually made up of many different types of costs, each one of which will be referred to as a 'line item'.  Examples include the cost of buying capital equipment, costs for a member of staff, recurring licencing fees etc.
+![](../README_files/figure-markdown_strict/unnamed-chunk-2-1.png)
 
-* These costs can be grouped in a number of types, each one of which can be modelled in the same way  - ongoing, monthly, one off etc
+Since this dataframe is tidy, it is easy to perform aggregations and
+filtering, and products tabular and graphical output that summarises
+forecasted costs.
 
-* It's possible to define a common target data structure - a table - that is the same for all of these costs.  By converting each line item into this tabular data structure and concatenating, the entire cost model can be represented as a single (tidy)[http://vita.had.co.nz/papers/tidy-data.pdf] data frame.  This can then be used as the basis of summary model outputs, such as pivot tables and charts.
+Assumptions are input into the model from `.csv.` files which must be
+provided in a specific format. There are a number of different
+assumption types, such as 'one off costs', recurring costs' and 'staff
+costs'. The format of the `.csv` file differs depending on the
+assumption type.
 
+Assumption types
+----------------
 
-### The target data structure
+### Key dates
 
-Target data structured is as follows:
+The cost model should be iniitalised with 'key dates', which control the
+time period over which outputs will be generated.
 
-```
-+------+--------------+----------+----------------+---------------------+
-| date | line_item_id | quantity | price_gbp_real | total_cost_gbp_real |
-+------+--------------+----------+----------------+---------------------+
-|      |              |          |                |                     |
-+------+--------------+----------+----------------+---------------------+
-```
+Key dates look like this:
 
-It is assumed that within this table, there is a row for each day of the cost modelling period.
+![](../README_files/figure-markdown_strict/unnamed-chunk-3-1.png)
 
-A separate table like this will be produced for each line item.
+### One off costs
 
-### Converting assumptions into the target data structure
+One off costs occur only once. `costmodelr` does not need to perform
+complex computations on these assupmptions, and so the input is similar
+to the output.
 
-To make the cost model functional, we need a way of defining the assumptions that will drive the model.
+The input format is as follows:
 
-Since there are several different types of cost, we will need several different formats for writing down assumptions.
+![](../README_files/figure-markdown_strict/unnamed-chunk-4-1.png)
 
-For instance, for an 'annual cost', the format for assumptions can be simple, probably covering just quantity, and price_gbp_real.
+The output would look as follows:
 
-A more complex type of assumption could involve
+![](../README_files/figure-markdown_strict/unnamed-chunk-5-1.png)
 
-So the general data processing flow is:
+### Recurring costs
 
-assumption format -> target data structure for each assumption line item -> concatenated dataframe -> summary tables and charts.
+Allows you to model costs that happen at a given frequency. Includes
+options that allow costs to grow at given % and fixed rates.
 
-We will then be able to define other
+The input format is as follows:
 
-## Notes
+![](../README_files/figure-markdown_strict/unnamed-chunk-6-1.png)
 
-One issue with cost modelling is how to deal with continuous costs like staff costs
+The output would look as follows:
 
-If you model staff costs as a weekly payment, then summarize by month, you will get different amounts each month, so your charts will look weird
+![](../README_files/figure-markdown_strict/unnamed-chunk-7-1.png)
 
-So we model continuous costs like running costs and staff costs daily
+### Staff utilisation
 
-We need a way of interpolating for continuous costs - if you have weekly costs, splitting them to daily etc.  A kind of 'interpolate and split'
+Allows you to model staff costs, given assumptions of staff %
+utilisation on the project.
+
+Two different sets of assumptions are needed here: % utilisation, and a
+ratecard.
+
+The ratecard looks like this
+
+![](../README_files/figure-markdown_strict/unnamed-chunk-8-1.png)
+
+The staff utilisation assumptions look like this:
+
+    ## Warning: Duplicated column names deduplicated: 'TA' => 'TA_1' [3]
+
+![](../README_files/figure-markdown_strict/unnamed-chunk-9-1.png)
+
+The output looks like this:
+
+![](../README_files/figure-markdown_strict/unnamed-chunk-10-1.png)
+
+(Note only the first 10 rows of the output are show. Note also costs are
+spread equally throughout the week, so £50 a week = ~£7.14 a day,
+including Sat and Sun)
+
+### User variable costs
+
+This type of cost is to deal with costs which are proportional to the
+number of users.
+
+It's possible to model both costs which are directly proportional to the
+number of users (e.g. each user needs a Github account), or to deal with
+costs which grow with the number of users (e.g. each user uses an
+*additional* 2gb of storage each month)
+
+The input assumptions look like this:
+
+Number of users (this will be linearly interpolated):
+
+![](../README_files/figure-markdown_strict/unnamed-chunk-11-1.png)
+
+Cost assumptions:
+
+![](../README_files/figure-markdown_strict/unnamed-chunk-12-1.png)
+
+The output looks like this:
+
+![](../README_files/figure-markdown_strict/unnamed-chunk-13-1.png)
+
+(again, only the first 10 records are shown)
+
+Running a full cost model
+-------------------------
+
+Running the full cost model amounts to loading in assumptions, and using
+the `run cost model` function.
+
+    # The 'key dates' file specifies the time period over which the cost model produces estimates
+    key_dates <- readr::read_csv("assumptions/key_dates.csv", col_types=readr::cols())
+
+    # Read in assumptions from files
+    users <- readr::read_csv("assumptions/users.csv", col_types=readr::cols())
+    staff_utilisation <- readr::read_csv("assumptions/staff_utilisation.csv", col_types=readr::cols())
+    rate_card <- readr::read_csv("assumptions/rate_card.csv", col_types=readr::cols())
+    recurring_costs <-  readr::read_csv("assumptions/recurring_cost.csv", col_types=readr::cols())
+    oneoff_costs <- readr::read_csv("assumptions/oneoff_costs.csv", col_types=readr::cols())
+    user_variable_costs <- readr::read_csv("assumptions/user_variable_costs.csv", col_types =readr::cols())
+
+    # Add each set of assumptions to model
+    cost_model <- create_cost_model(key_dates)
+    cost_model <- add_oneoff_costs(cost_model, oneoff_costs)
+    cost_model <- add_recurring_cost(cost_model, recurring_costs)
+    cost_model <- add_user_variable_costs(cost_model, users, user_variable_costs)
+    cost_model <- add_staff_utilisation(cost_model, staff_utilisation, rate_card)
+
+    # Run model
+    cost_model <- run_cost_model(cost_model)
+
+    # Extract cost dataframe from model
+    cost_model$cost_dataframe
