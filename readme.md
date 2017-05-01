@@ -5,7 +5,7 @@ library(DT)
 Introduction
 ------------
 
-This vignette runs through a full example of how to use the `costmodelr` package.
+This document presents and example of how to use the `costmodelr` package.
 
 Package basics
 --------------
@@ -13,8 +13,14 @@ Package basics
 The `costmodelr` package provides a set of utility functions for turning a set of cost assumptions into a [tidy](http://vita.had.co.nz/papers/tidy-data.pdf) table that has one row for each 'line item' (type of cost), for each date that a cost in incurred.
 
 Here is an example of the format of the output dataframe:
-  
-![](../master/README_files/figure-markdown_github/unnamed-chunk-2-1.png)
+
+| date       | id    |  quantity|  price\_gbp\_real| category\_1    | category\_2 | category\_3 |        cost|
+|:-----------|:------|---------:|-----------------:|:---------------|:------------|:------------|-----------:|
+| 2017-01-01 | oo\_1 |         2|         1000.0000| Hardware       | Macbooks    | Macbook Air |   2000.0000|
+| 2017-01-01 | oo\_3 |         7|         2000.0000| Licencing      | Software    | ETL         |  14000.0000|
+| 2017-02-01 | rc\_3 |         1|            4.8066| Infrastructure | AWS         | EC2         |      4.8066|
+| 2017-02-01 | sc\_1 |         2|          500.0000| Staff          | AWS         | Technical   |   1000.0000|
+| 2017-02-01 | sc\_2 |         2|          500.0000| Staff          | AWS         | Technical   |   1000.0000|
 
 Since this dataframe is tidy, it is easy to perform aggregations and filtering, and products tabular and graphical output that summarises forecasted costs.
 
@@ -29,7 +35,7 @@ The cost model should be iniitalised with 'key dates', which control the time pe
 
 Key dates look like this:
 
-![](../master/README_files/figure-markdown_github/unnamed-chunk-3-1.png)
+![](../master/README_files/figure-markdown_github/unnamed-chunk-5-1.png)
 
 ### One off costs
 
@@ -37,11 +43,15 @@ One off costs occur only once. `costmodelr` does not need to perform complex com
 
 The input format is as follows:
 
-![](../master/README_files/figure-markdown_github/unnamed-chunk-4-1.png)
+|  price\_in\_original\_currency| real\_or\_nominal | currency |  quantity| date     | category\_1 | category\_2 | category\_3 | Description | Source |
+|------------------------------:|:------------------|:---------|---------:|:---------|:------------|:------------|:------------|:------------|:-------|
+|                             50| real              | GBP      |         4| 02/01/17 | a           | b           | c           | abc         | x      |
+|                            100| real              | GBP      |         2| 04/01/17 | a           | b           | d           | acbd        | y      |
+|                            150| real              | GBP      |         1| 10/01/17 | b           | b           | d           | bbd         | z      |
 
 The output would look as follows:
 
-![](../master/README_files/figure-markdown_github/unnamed-chunk-5-1.png)
+![](../master/README_files/figure-markdown_github/unnamed-chunk-7-1.png)
 
 ### Recurring costs
 
@@ -49,11 +59,11 @@ Allows you to model costs that happen at a given frequency. Includes options tha
 
 The input format is as follows:
 
-![](../master/README_files/figure-markdown_github/unnamed-chunk-6-1.png)
+![](../master/README_files/figure-markdown_github/unnamed-chunk-8-1.png)
 
 The output would look as follows:
 
-![](../master/README_files/figure-markdown_github/unnamed-chunk-7-1.png)
+![](../master/README_files/figure-markdown_github/unnamed-chunk-9-1.png)
 
 ### Staff utilisation
 
@@ -63,17 +73,17 @@ Two different sets of assumptions are needed here: % utilisation, and a ratecard
 
 The ratecard looks like this
 
-![](../master/README_files/figure-markdown_github/unnamed-chunk-8-1.png)
+![](../master/README_files/figure-markdown_github/unnamed-chunk-10-1.png)
 
 The staff utilisation assumptions look like this:
 
     ## Warning: Duplicated column names deduplicated: 'TA' => 'TA_1' [3]
 
-![](../master/README_files/figure-markdown_github/unnamed-chunk-9-1.png)
+![](../master/README_files/figure-markdown_github/unnamed-chunk-11-1.png)
 
 The output looks like this:
 
-![](../master/README_files/figure-markdown_github/unnamed-chunk-10-1.png)
+![](../master/README_files/figure-markdown_github/unnamed-chunk-12-1.png)
 
 (Note only the first 10 rows of the output are show. Note also costs are spread equally throughout the week, so £50 a week = ~£7.14 a day, including Sat and Sun)
 
@@ -87,15 +97,15 @@ The input assumptions look like this:
 
 Number of users (this will be linearly interpolated):
 
-![](../master/README_files/figure-markdown_github/unnamed-chunk-11-1.png)
+![](../master/README_files/figure-markdown_github/unnamed-chunk-13-1.png)
 
 Cost assumptions:
 
-![](../master/README_files/figure-markdown_github/unnamed-chunk-12-1.png)
+![](../master/README_files/figure-markdown_github/unnamed-chunk-14-1.png)
 
 The output looks like this:
 
-![](../master/README_files/figure-markdown_github/unnamed-chunk-13-1.png)
+![](../master/README_files/figure-markdown_github/unnamed-chunk-15-1.png)
 
 (again, only the first 10 records are shown)
 
