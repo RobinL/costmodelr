@@ -1,26 +1,38 @@
 Introduction
 ------------
 
-This document presents and example of how to use the `costmodelr` package.
+This vignette presents an example of how to use the `costmodelr` package. You can access all the vignettes for this package in R by typing `browseVignettes("costmodelr")`.
+
+You can download a template of a cost model with working code [here](https://github.com/RobinL/costmodelr_project_template)
 
 Package basics
 --------------
 
 The `costmodelr` package provides a set of utility functions for turning a set of cost assumptions into a [tidy](http://vita.had.co.nz/papers/tidy-data.pdf) table that has one row for each cost on each date that cost is incurred.
 
-Here is an example of the format of the output dataframe:
+The core output format has just five columns as follows:
 
-| date       | id    |  quantity|  price\_gbp\_real| category\_1    | category\_2 | category\_3 |        cost|
-|:-----------|:------|---------:|-----------------:|:---------------|:------------|:------------|-----------:|
-| 2017-01-01 | oo\_1 |         2|         1000.0000| Hardware       | Macbooks    | Macbook Air |   2000.0000|
-| 2017-01-01 | oo\_3 |         7|         2000.0000| Licencing      | Software    | ETL         |  14000.0000|
-| 2017-02-01 | rc\_3 |         1|            4.8066| Infrastructure | AWS         | EC2         |      4.8066|
-| 2017-02-01 | sc\_1 |         2|          500.0000| Staff          | AWS         | Technical   |   1000.0000|
-| 2017-02-01 | sc\_2 |         2|          500.0000| Staff          | AWS         | Technical   |   1000.0000|
+| date       | id       |  quantity|  price\_gbp| real\_or\_nominal |
+|:-----------|:---------|---------:|-----------:|:------------------|
+| 2017-01-02 | oo\_0\_1 |         4|          50| real              |
+| 2017-01-04 | oo\_0\_2 |         2|         100| real              |
+| 2017-01-10 | oo\_0\_3 |         1|         150| real              |
 
-Since this dataframe is tidy, it is easy to perform aggregations and filtering, and products tabular and graphical output that summarises forecasted costs.
+Additional information is associated with each cost that enables final results to be filtered and cross tabulated. This can then be joined onto the core output to produce a dataframe like this:
 
-Assumptions are input into the model from `.csv.` files which must be provided in a specific format. There are a number of different assumption types, such as 'one off costs', recurring costs' and 'staff costs'. The format of the `.csv` file differs depending on the assumption type.
+| date       | id       |  quantity| category\_1 | category\_2 | category\_3 |  gdp\_deflator|  green\_book\_discount|  cost\_gbp\_real|  cost\_gbp\_nominal| period |
+|:-----------|:---------|---------:|:------------|:------------|:------------|--------------:|----------------------:|----------------:|-------------------:|:-------|
+| 2017-01-02 | oo\_0\_1 |         4| a           | b           | c           |       1.028260|               1.063935|              200|            205.6521| alpha  |
+| 2017-01-04 | oo\_0\_2 |         2| a           | b           | d           |       1.028373|               1.064135|              200|            205.6747| alpha  |
+| 2017-01-10 | oo\_0\_3 |         1| b           | b           | d           |       1.028713|               1.064737|              150|            154.3069| live   |
+
+This output can be accessed from `cost_model$cost_dataframe`.
+
+The categorisation columns are provided by the user and can be altered from the defaults using `costmodelr::setting_categorisation_columns()` or `setting_append_to_categorisation_columns()`.
+
+Since this output dataframe is tidy, it is easy to perform aggregations and filtering, and produce tabular and graphical output that summarises actual and forecasted costs.
+
+Assumptions are input into the model from dataframes, typically read in from `.csv` files, which must be provided in a specific format. There are a number of different assumption types, such as 'one off costs', recurring costs' and 'staff costs'.
 
 Assumption types
 ----------------
@@ -37,9 +49,11 @@ Key dates look like this:
 | 2017-01-05 | beta   |
 | 2017-01-10 | live   |
 
+In addition to a 'date' columns, any other columns in the key dates dataframe will be added to the final outputs, and therefore can be used for cross tabulation.
+
 ### One off costs
 
-One off costs occur only once. `costmodelr` does not need to perform complex computations on these assupmptions, and so the input is similar to the output.
+One off costs are costs that occur only once. `costmodelr` does not need to perform complex computations on these assupmptions, and so the input is similar to the output; there is a one to one correspondence between the rows in the assumption file and output rows.
 
 The input format is as follows:
 
@@ -110,38 +124,18 @@ The staff utilisation assumptions look like this:
 
 The output looks like this:
 
-| date       | id           |  quantity| category\_1 | category\_2   | category\_3         |  gdp\_deflator|  green\_book\_discount|  cost\_gbp\_real|  cost\_gbp\_nominal| period |
-|:-----------|:-------------|---------:|:------------|:--------------|:--------------------|--------------:|----------------------:|----------------:|-------------------:|:-------|
-| 2017-01-01 | su\_0\_TA    |      0.50| staff       | technical     | technical architect |       1.028204|               1.063835|         7.142857|            7.344312| alpha  |
-| 2017-01-02 | su\_0\_TA    |      0.50| staff       | technical     | technical architect |       1.028260|               1.063935|         7.142857|            7.344716| alpha  |
-| 2017-01-03 | su\_0\_TA    |      0.50| staff       | technical     | technical architect |       1.028317|               1.064035|         7.142857|            7.345120| alpha  |
-| 2017-01-04 | su\_0\_TA    |      0.50| staff       | technical     | technical architect |       1.028373|               1.064135|         7.142857|            7.345524| alpha  |
-| 2017-01-05 | su\_0\_TA    |      1.00| staff       | technical     | technical architect |       1.028430|               1.064236|        14.285714|           14.691857| beta   |
-| 2017-01-06 | su\_0\_TA    |      1.00| staff       | technical     | technical architect |       1.028487|               1.064336|        14.285714|           14.692665| beta   |
-| 2017-01-07 | su\_0\_TA    |      1.00| staff       | technical     | technical architect |       1.028543|               1.064436|        14.285714|           14.693473| beta   |
-| 2017-01-08 | su\_0\_TA    |      1.00| staff       | technical     | technical architect |       1.028600|               1.064536|        14.285714|           14.694281| beta   |
-| 2017-01-09 | su\_0\_TA    |      1.00| staff       | technical     | technical architect |       1.028656|               1.064637|        14.285714|           14.695090| beta   |
-| 2017-01-10 | su\_0\_TA    |      0.50| staff       | technical     | technical architect |       1.028713|               1.064737|         7.142857|            7.347949| live   |
-| 2017-01-01 | su\_0\_TA\_1 |      1.00| staff       | technical     | technical architect |       1.028204|               1.063835|        14.285714|           14.688624| alpha  |
-| 2017-01-02 | su\_0\_TA\_1 |      1.00| staff       | technical     | technical architect |       1.028260|               1.063935|        14.285714|           14.689432| alpha  |
-| 2017-01-03 | su\_0\_TA\_1 |      1.00| staff       | technical     | technical architect |       1.028317|               1.064035|        14.285714|           14.690240| alpha  |
-| 2017-01-04 | su\_0\_TA\_1 |      1.00| staff       | technical     | technical architect |       1.028373|               1.064135|        14.285714|           14.691049| alpha  |
-| 2017-01-05 | su\_0\_TA\_1 |      1.00| staff       | technical     | technical architect |       1.028430|               1.064236|        14.285714|           14.691857| beta   |
-| 2017-01-06 | su\_0\_TA\_1 |      1.00| staff       | technical     | technical architect |       1.028487|               1.064336|        14.285714|           14.692665| beta   |
-| 2017-01-07 | su\_0\_TA\_1 |      1.00| staff       | technical     | technical architect |       1.028543|               1.064436|        14.285714|           14.693473| beta   |
-| 2017-01-08 | su\_0\_TA\_1 |      1.00| staff       | technical     | technical architect |       1.028600|               1.064536|        14.285714|           14.694281| beta   |
-| 2017-01-09 | su\_0\_TA\_1 |      1.00| staff       | technical     | technical architect |       1.028656|               1.064637|        14.285714|           14.695090| beta   |
-| 2017-01-10 | su\_0\_TA\_1 |      1.00| staff       | technical     | technical architect |       1.028713|               1.064737|        14.285714|           14.695898| live   |
-| 2017-01-01 | su\_0\_PM    |      0.25| staff       | non technical | product manager     |       1.028204|               1.063835|         1.785714|            1.836078| alpha  |
-| 2017-01-02 | su\_0\_PM    |      0.25| staff       | non technical | product manager     |       1.028260|               1.063935|         1.785714|            1.836179| alpha  |
-| 2017-01-03 | su\_0\_PM    |      0.25| staff       | non technical | product manager     |       1.028317|               1.064035|         1.785714|            1.836280| alpha  |
-| 2017-01-04 | su\_0\_PM    |      0.25| staff       | non technical | product manager     |       1.028373|               1.064135|         1.785714|            1.836381| alpha  |
-| 2017-01-05 | su\_0\_PM    |      0.25| staff       | non technical | product manager     |       1.028430|               1.064236|         1.785714|            1.836482| beta   |
-| 2017-01-06 | su\_0\_PM    |      0.25| staff       | non technical | product manager     |       1.028487|               1.064336|         1.785714|            1.836583| beta   |
-| 2017-01-07 | su\_0\_PM    |      0.25| staff       | non technical | product manager     |       1.028543|               1.064436|         1.785714|            1.836684| beta   |
-| 2017-01-08 | su\_0\_PM    |      0.25| staff       | non technical | product manager     |       1.028600|               1.064536|         1.785714|            1.836785| beta   |
-| 2017-01-09 | su\_0\_PM    |      0.25| staff       | non technical | product manager     |       1.028656|               1.064637|         1.785714|            1.836886| beta   |
-| 2017-01-10 | su\_0\_PM    |      0.25| staff       | non technical | product manager     |       1.028713|               1.064737|         1.785714|            1.836987| live   |
+| date       | id        |  quantity| category\_1 | category\_2 | category\_3         |  gdp\_deflator|  green\_book\_discount|  cost\_gbp\_real|  cost\_gbp\_nominal| period |
+|:-----------|:----------|---------:|:------------|:------------|:--------------------|--------------:|----------------------:|----------------:|-------------------:|:-------|
+| 2017-01-01 | su\_0\_TA |       0.5| staff       | technical   | technical architect |       1.028204|               1.063835|         7.142857|            7.344312| alpha  |
+| 2017-01-02 | su\_0\_TA |       0.5| staff       | technical   | technical architect |       1.028260|               1.063935|         7.142857|            7.344716| alpha  |
+| 2017-01-03 | su\_0\_TA |       0.5| staff       | technical   | technical architect |       1.028317|               1.064035|         7.142857|            7.345120| alpha  |
+| 2017-01-04 | su\_0\_TA |       0.5| staff       | technical   | technical architect |       1.028373|               1.064135|         7.142857|            7.345524| alpha  |
+| 2017-01-05 | su\_0\_TA |       1.0| staff       | technical   | technical architect |       1.028430|               1.064236|        14.285714|           14.691857| beta   |
+| 2017-01-06 | su\_0\_TA |       1.0| staff       | technical   | technical architect |       1.028487|               1.064336|        14.285714|           14.692665| beta   |
+| 2017-01-07 | su\_0\_TA |       1.0| staff       | technical   | technical architect |       1.028543|               1.064436|        14.285714|           14.693473| beta   |
+| 2017-01-08 | su\_0\_TA |       1.0| staff       | technical   | technical architect |       1.028600|               1.064536|        14.285714|           14.694281| beta   |
+| 2017-01-09 | su\_0\_TA |       1.0| staff       | technical   | technical architect |       1.028656|               1.064637|        14.285714|           14.695090| beta   |
+| 2017-01-10 | su\_0\_TA |       0.5| staff       | technical   | technical architect |       1.028713|               1.064737|         7.142857|            7.347949| live   |
 
 (Note only the first 10 rows of the output are show. Note also costs are spread equally throughout the week, so £50 a week = ~£7.14 a day, including Sat and Sun)
 
@@ -186,36 +180,6 @@ The output looks like this:
 | 2017-01-08 | uvc\_0\_1 |        10| infrastructure | storage     | amazon s3   |       1.028600|               1.064536|        19.712526|           20.276298| beta   |
 | 2017-01-09 | uvc\_0\_1 |        12| infrastructure | storage     | amazon s3   |       1.028656|               1.064637|        23.655031|           24.332896| beta   |
 | 2017-01-10 | uvc\_0\_1 |        14| infrastructure | storage     | amazon s3   |       1.028713|               1.064737|        27.597536|           28.389940| live   |
-| 2017-01-01 | uvc\_0\_2 |         2| infrastructure | compute     | ec2         |       1.028204|               1.063835|         1.971253|            2.026849| alpha  |
-| 2017-01-02 | uvc\_0\_2 |         4| infrastructure | compute     | ec2         |       1.028260|               1.063935|         3.942505|            4.053921| alpha  |
-| 2017-01-03 | uvc\_0\_2 |         6| infrastructure | compute     | ec2         |       1.028317|               1.064035|         5.913758|            6.081217| alpha  |
-| 2017-01-04 | uvc\_0\_2 |         8| infrastructure | compute     | ec2         |       1.028373|               1.064135|         7.885010|            8.108735| alpha  |
-| 2017-01-05 | uvc\_0\_2 |        10| infrastructure | compute     | ec2         |       1.028430|               1.064236|         9.856263|           10.136476| beta   |
-| 2017-01-06 | uvc\_0\_2 |        12| infrastructure | compute     | ec2         |       1.028487|               1.064336|        11.827515|           12.164440| beta   |
-| 2017-01-07 | uvc\_0\_2 |        16| infrastructure | compute     | ec2         |       1.028543|               1.064436|        15.770020|           16.220146| beta   |
-| 2017-01-08 | uvc\_0\_2 |        20| infrastructure | compute     | ec2         |       1.028600|               1.064536|        19.712526|           20.276298| beta   |
-| 2017-01-09 | uvc\_0\_2 |        24| infrastructure | compute     | ec2         |       1.028656|               1.064637|        23.655031|           24.332896| beta   |
-| 2017-01-10 | uvc\_0\_2 |        28| infrastructure | compute     | ec2         |       1.028713|               1.064737|        27.597536|           28.389940| live   |
-| 2017-01-01 | uvc\_0\_3 |        10| infrastructure | accounts    | github      |       1.028204|               1.063835|        10.000000|           10.282037| alpha  |
-| 2017-01-02 | uvc\_0\_3 |        10| infrastructure | accounts    | github      |       1.028260|               1.063935|        10.000000|           10.282603| alpha  |
-| 2017-01-03 | uvc\_0\_3 |        10| infrastructure | accounts    | github      |       1.028317|               1.064035|        10.000000|           10.283168| alpha  |
-| 2017-01-04 | uvc\_0\_3 |        10| infrastructure | accounts    | github      |       1.028373|               1.064135|        10.000000|           10.283734| alpha  |
-| 2017-01-05 | uvc\_0\_3 |        10| infrastructure | accounts    | github      |       1.028430|               1.064236|        10.000000|           10.284300| beta   |
-| 2017-01-06 | uvc\_0\_3 |        10| infrastructure | accounts    | github      |       1.028487|               1.064336|        10.000000|           10.284865| beta   |
-| 2017-01-07 | uvc\_0\_3 |        20| infrastructure | accounts    | github      |       1.028543|               1.064436|        20.000000|           20.570862| beta   |
-| 2017-01-08 | uvc\_0\_3 |        20| infrastructure | accounts    | github      |       1.028600|               1.064536|        20.000000|           20.571994| beta   |
-| 2017-01-09 | uvc\_0\_3 |        20| infrastructure | accounts    | github      |       1.028656|               1.064637|        20.000000|           20.573125| beta   |
-| 2017-01-10 | uvc\_0\_3 |        20| infrastructure | accounts    | github      |       1.028713|               1.064737|        20.000000|           20.574257| live   |
-| 2017-01-01 | uvc\_0\_4 |       101| infrastructure | storate     | ebs         |       1.028204|               1.063835|       202.000000|          207.697148| alpha  |
-| 2017-01-02 | uvc\_0\_4 |       102| infrastructure | storate     | ebs         |       1.028260|               1.063935|       208.080000|          213.960396| alpha  |
-| 2017-01-03 | uvc\_0\_4 |       103| infrastructure | storate     | ebs         |       1.028317|               1.064035|       214.322400|          220.391331| alpha  |
-| 2017-01-04 | uvc\_0\_4 |       104| infrastructure | storate     | ebs         |       1.028373|               1.064135|       220.731264|          226.994159| alpha  |
-| 2017-01-05 | uvc\_0\_4 |       105| infrastructure | storate     | ebs         |       1.028430|               1.064236|       227.310754|          233.773190| beta   |
-| 2017-01-06 | uvc\_0\_4 |       106| infrastructure | storate     | ebs         |       1.028487|               1.064336|       234.065130|          240.732835| beta   |
-| 2017-01-07 | uvc\_0\_4 |       208| infrastructure | storate     | ebs         |       1.028543|               1.064436|       468.483566|          481.855546| beta   |
-| 2017-01-08 | uvc\_0\_4 |       210| infrastructure | storate     | ebs         |       1.028600|               1.064536|       482.447980|          496.245844| beta   |
-| 2017-01-09 | uvc\_0\_4 |       212| infrastructure | storate     | ebs         |       1.028656|               1.064637|       496.783577|          511.019544| beta   |
-| 2017-01-10 | uvc\_0\_4 |       214| infrastructure | storate     | ebs         |       1.028713|               1.064737|       511.499619|          526.186236| live   |
 
 (again, only the first 10 records are shown)
 
@@ -237,15 +201,21 @@ oneoff_costs <- readr::read_csv("assumptions/oneoff_costs.csv", col_types=readr:
 user_variable_costs <- readr::read_csv("assumptions/user_variable_costs.csv", col_types =readr::cols())
 
 # Add each set of assumptions to model
-cost_model <- create_cost_model(key_dates)
-cost_model <- add_oneoff_costs(cost_model, oneoff_costs)
-cost_model <- add_recurring_cost(cost_model, recurring_costs)
-cost_model <- add_user_variable_costs(cost_model, users, user_variable_costs)
-cost_model <- add_staff_utilisation(cost_model, staff_utilisation, rate_card)
+cost_model <- create_cost_model(key_dates) %>% 
+  add_oneoff_costs(oneoff_costs) %>% 
+  add_recurring_cost(recurring_costs) %>%  
+  add_user_variable_costs(users, user_variable_costs) %>% 
+  add_staff_utilisation(staff_utilisation, rate_card)
 
 # Run model
 cost_model <- run_cost_model(cost_model)
 
-# Extract cost dataframe from model
+# Extract cost dataframe from model - use this if you want to do crosstabs or filters
 cost_model$cost_dataframe
+
+# Run a Shiny app to interactively explore your data
+shiny_vis(cost_model)
+
+# View a hierarchical bubble chart of the model
+shiny_bubble(cost_model)
 ```

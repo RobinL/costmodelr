@@ -16,30 +16,54 @@ library(DT)
 
 ## Introduction
 
-This document presents and example of how to use the `costmodelr` package.
+This vignette presents an example of how to use the `costmodelr` package.  You can access all the vignettes for this package in R by typing `browseVignettes("costmodelr")`.
+
+You can download a template of a cost model with working code [here](https://github.com/RobinL/costmodelr_project_template)
 
 ## Package basics
 
 The `costmodelr` package provides a set of utility functions for turning a set of cost assumptions into a [tidy](http://vita.had.co.nz/papers/tidy-data.pdf) table that has one row for each cost on each date that cost is incurred. 
 
-Here is an example of the format of the output dataframe:
+The core output format has just five columns as follows:
 
-```{r, echo=FALSE}
-df <- readr::read_csv("example_data.csv", col_types=readr::cols())
-# DT::datatable(df, options=list(scrollX = TRUE))
-knitr::kable(df)
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# The 'key dates' file specifies the time period over which the cost model produces estimates
+
+key_dates <- readr::read_csv(system.file("extdata", "key_dates_1.csv", package="costmodelr"), col_types=readr::cols())
+oneoff_costs <- readr::read_csv(system.file("extdata", "oneoff_costs_1.csv", package="costmodelr"), col_types=readr::cols())
+cost_model <- costmodelr::create_cost_model(key_dates)
+cost_model <- costmodelr::add_oneoff_costs(cost_model, oneoff_costs)
+
+# Run model
+cost_model <- costmodelr::run_cost_model(cost_model)
+
+# Extract cost dataframe from model
+knitr::kable(cost_model$chunks)
 ```
 
-Since this dataframe is tidy, it is easy to perform aggregations and filtering, and products tabular and graphical output that summarises forecasted costs.
+Additional information is associated with each cost that enables final results to be filtered and cross tabulated. This can then be joined onto the core output to produce a dataframe like this:
 
-Assumptions are input into the model from `.csv.` files which must be provided in a specific format.  There are a number of different assumption types, such as 'one off costs', recurring costs' and 'staff costs'.  The format of the `.csv` file differs depending on the assumption type.
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# The 'key dates' file specifies the time period over which the cost model produces estimates
+
+# Extract cost dataframe from model
+knitr::kable(cost_model$cost_dataframe)
+
+```
+
+This output can be accessed from `cost_model$cost_dataframe`.
+
+The categorisation columns are provided by the user and can be altered from the defaults using `costmodelr::setting_categorisation_columns()` or `setting_append_to_categorisation_columns()`.
+
+Since this output dataframe is tidy, it is easy to perform aggregations and filtering, and produce tabular and graphical output that summarises actual and forecasted costs.
+
+Assumptions are input into the model from dataframes, typically read in from `.csv` files, which must be provided in a specific format.  There are a number of different assumption types, such as 'one off costs', recurring costs' and 'staff costs'.
 
 ## Assumption types
 
-
 ### Key dates
 
-The cost model should be iniitalised with 'key dates', which control the time period over which outputs will be generated.
+The cost model should be iniitalised with 'key dates', which control the time period over which outputs will be generated. 
 
 Key dates look like this:
 
@@ -50,9 +74,11 @@ df <- readr::read_csv(system.file("extdata", "key_dates_1.csv", package="costmod
 knitr::kable(df)
 ```
 
+In addition to a 'date' columns, any other columns in the key dates dataframe will be added to the final outputs, and therefore can be used for cross tabulation.
+
 ### One off costs
 
-One off costs occur only once.  `costmodelr` does not need to perform complex computations on these assupmptions, and so the input is similar to the output.
+One off costs are costs that occur only once. `costmodelr` does not need to perform complex computations on these assupmptions, and so the input is similar to the output; there is a one to one correspondence between the rows in the assumption file and output rows.
 
 The input format is as follows:
 
@@ -137,7 +163,7 @@ cost_model <- costmodelr::add_staff_utilisation(cost_model, staff_utilisation, r
 
 cost_model <- costmodelr::run_cost_model(cost_model)
 # DT::datatable(cost_model$cost_dataframe, options=list(scrollX = TRUE))
-knitr::kable(cost_model$cost_dataframe)
+knitr::kable(cost_model$cost_dataframe[1:10,])
 
 ```
 
@@ -181,7 +207,7 @@ cost_model <- costmodelr::add_user_variable_costs(cost_model, users, user_variab
 
 cost_model <- costmodelr::run_cost_model(cost_model)
 # DT::datatable(cost_model$cost_dataframe, options=list(scrollX = TRUE))
-knitr::kable(cost_model$cost_dataframe)
+knitr::kable(cost_model$cost_dataframe[1:10,])
 ```
 
 
@@ -204,17 +230,23 @@ oneoff_costs <- readr::read_csv("assumptions/oneoff_costs.csv", col_types=readr:
 user_variable_costs <- readr::read_csv("assumptions/user_variable_costs.csv", col_types =readr::cols())
 
 # Add each set of assumptions to model
-cost_model <- create_cost_model(key_dates)
-cost_model <- add_oneoff_costs(cost_model, oneoff_costs)
-cost_model <- add_recurring_cost(cost_model, recurring_costs)
-cost_model <- add_user_variable_costs(cost_model, users, user_variable_costs)
-cost_model <- add_staff_utilisation(cost_model, staff_utilisation, rate_card)
+cost_model <- create_cost_model(key_dates) %>% 
+  add_oneoff_costs(oneoff_costs) %>% 
+  add_recurring_cost(recurring_costs) %>%  
+  add_user_variable_costs(users, user_variable_costs) %>% 
+  add_staff_utilisation(staff_utilisation, rate_card)
 
 # Run model
 cost_model <- run_cost_model(cost_model)
 
-# Extract cost dataframe from model
+# Extract cost dataframe from model - use this if you want to do crosstabs or filters
 cost_model$cost_dataframe
+
+# Run a Shiny app to interactively explore your data
+shiny_vis(cost_model)
+
+# View a hierarchical bubble chart of the model
+shiny_bubble(cost_model)
 ```
 
 
