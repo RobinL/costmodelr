@@ -43,9 +43,6 @@ cost_model <- create_cost_model(key_dates) %>%
 # Run model
 cost_model <- run_cost_model(cost_model)
 
-
-
-
 shiny_vis(cost_model)
 shiny_bubble(cost_model)
 

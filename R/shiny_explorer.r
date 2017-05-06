@@ -53,6 +53,7 @@ shiny_vis <- function(cost_model) {
                                   selected = "Months")
             )
           )
+
         ),
         shiny::tabsetPanel(
           shiny::tabPanel("Main",
@@ -82,6 +83,12 @@ shiny_vis <- function(cost_model) {
                 offset=2
               ),
               style='padding:20px;margin:20px;'
+            ),
+            shiny::wellPanel(
+              shiny::fluidRow(
+                shiny::h4("Filters:"),
+                shiny::uiOutput("data_filters")
+              )
             )
 
           ),
@@ -89,9 +96,28 @@ shiny_vis <- function(cost_model) {
                          rpivotTable::rpivotTableOutput("pivot")
           )
         )
+
+
       )
     ),
     server = function(input, output) {
+
+      cost_dataframe_filtered <- shiny::reactive({
+
+        # Check which of the cat_choices inputs are actually filled
+        print(cat_choices)
+        df <- cost_model$cost_dataframe
+        for (i in cat_choices) {
+          this_input <- input[[i]]
+          if (length(this_input) > 0) {
+            f <- (df[[i]] %in% this_input)
+            df <- df[f,]
+          }
+        }
+
+        df
+
+      })
 
       granularity <- shiny::reactive({
         input$granularity
@@ -102,15 +128,20 @@ shiny_vis <- function(cost_model) {
       })
 
       cum_costs_filtered <- shiny::reactive({
-        cost_model <- get_cumulative_costs(cost_model, granularity())
-        cost_model$cumcost_dataframe %>%
+        cost_dataframe <- cost_dataframe_filtered()
+        cumcost_dataframe <- get_cumulative_costs(cost_model, cost_dataframe, granularity())
+
+        df <- cumcost_dataframe %>%
           dplyr::filter(date >= input$daterange[1]) %>%
           dplyr::filter(date <= input$daterange[2])
+
+        df
       })
 
       cum_costs <- shiny::reactive({
-        cost_model <- get_cumulative_costs(cost_model, granularity())
-        cost_model$cumcost_dataframe
+        cost_dataframe <- cost_dataframe_filtered()
+        cumcost_dataframe <- get_cumulative_costs(cost_model, cost_dataframe ,granularity())
+        cumcost_dataframe
       })
 
 
@@ -139,7 +170,7 @@ shiny_vis <- function(cost_model) {
       })
 
       output$cum_cost_blurb <- shiny::renderText({
-        df <- cost_model$cost_dataframe %>%
+        df <- cost_dataframe_filtered() %>%
           dplyr::filter(date >= input$daterange[1]) %>%
           dplyr::filter(date <= input$daterange[2])
 
@@ -198,11 +229,37 @@ shiny_vis <- function(cost_model) {
       })
 
       output$formattedtable_xtab <- formattable::renderFormattable({
-        get_formattable(cost_model$cost_dataframe, granularity())
+        get_formattable(cost_dataframe_filtered(), granularity())
       })
 
       output$formattedtable_throughtime <- formattable::renderFormattable({
-        get_costs_equal_timeperiods_formattable(cost_model$cost_dataframe, periodicity())
+        get_costs_equal_timeperiods_formattable(cost_dataframe_filtered(), periodicity())
+      })
+
+      output$data_filters <- shiny::renderUI({
+
+        # For each of the categorical columns add a filter, population with options from that filter
+        key_date_cat_cols <- names(cost_model$key_dates)[names(cost_model$key_dates) != "date"]
+        cat_choices <- c(cost_model$categorisation_columns, key_date_cat_cols)
+        cat_choices <- cat_choices[cat_choices != "id"]
+
+
+
+        tl <- shiny::tagList()
+
+        for (i in cat_choices) {
+          # Get possible values
+          vals <- cost_model$cost_dataframe %>%
+            dplyr::distinct_(i) %>%
+            .[[i]]
+
+          print(i)
+
+          tl[[i]] <- shiny::column(3,shiny::selectInput(i, i, vals, multiple=TRUE))
+        }
+
+        tl
+
       })
 
 
@@ -213,7 +270,7 @@ shiny_vis <- function(cost_model) {
 #' Derives cumulative costs, for plotting
 #'
 #' @export
-get_cumulative_costs <- function(cost_model, groupby_vars) {
+get_cumulative_costs <- function(cost_model,cost_dataframe, groupby_vars) {
 
   # We want the cumulative cost in each category on each day
   # This is tricky because most costs occur on only a few days
@@ -225,7 +282,7 @@ get_cumulative_costs <- function(cost_model, groupby_vars) {
   all_days <- tibble::data_frame(date = all_days, crossjoin_col = 1)
 
   # All categories
-  cats <- cost_model$cost_dataframe %>%
+  cats <- cost_dataframe %>%
     dplyr::group_by_(.dots=groupby_vars)  %>%
     dplyr::summarise(crossjoin_col = 1)
 
@@ -233,7 +290,7 @@ get_cumulative_costs <- function(cost_model, groupby_vars) {
   all_combinations <- cats %>% dplyr::left_join(all_days)
 
   # Grab required cost information from cost dataframe
-  costs_to_keep <- cost_model$cost_dataframe %>%
+  costs_to_keep <- cost_dataframe %>%
     dplyr::select_("date", "cost_gbp_nominal", .dots = groupby_vars)
 
   # Make sure there are no dupes (costs with several records on the same day under the same category)
@@ -250,11 +307,11 @@ get_cumulative_costs <- function(cost_model, groupby_vars) {
   costs_for_cumulation[is.na(costs_for_cumulation)] <- 0
 
   # Compute cumulative costs
-  cost_model$cumcost_dataframe <- costs_for_cumulation %>%
+  cumcost_dataframe <- costs_for_cumulation %>%
     dplyr::group_by_(.dots=groupby_vars) %>%
     dplyr::mutate(csum_nominal_gbp = cumsum(cost_gbp_nominal)) %>%
     dplyr::arrange(date)
 
-  cost_model
+  cumcost_dataframe
 }
 
