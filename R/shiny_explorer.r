@@ -52,7 +52,8 @@ shiny_vis <- function(cost_model) {
                                                  "Financial year quarters" = "date_col_fy_quarter"),
                                   selected = "Months")
             )
-          )
+          ),
+          shiny::fluidRow(shiny::uiOutput("filters"))
         ),
         shiny::tabsetPanel(
           shiny::tabPanel("Main",
@@ -203,6 +204,14 @@ shiny_vis <- function(cost_model) {
 
       output$formattedtable_throughtime <- formattable::renderFormattable({
         get_costs_equal_timeperiods_formattable(cost_model$cost_dataframe, periodicity())
+      })
+
+      output$filters <- shiny::renderUI({
+
+        filters <- letters[1:3]
+        for (i in filters) {
+          shiny::selectInput(i, i, i, multiple=TRUE)
+        }
       })
 
 
