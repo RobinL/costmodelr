@@ -43,15 +43,13 @@ cost_model <- create_cost_model(key_dates) %>%
 # Run model
 cost_model <- run_cost_model(cost_model)
 
-cost_model$cost_dataframe %>%
-  group_by(category_1, category_2, category_3) %>%
-  summarise(value = sum(cost_gbp_nominal))
 
-cost_model$cost_dataframe %>%
-  arrange(category_3, date)
+
 
 shiny_vis(cost_model)
 shiny_bubble(cost_model)
+
+cost_model$cost_dataframe
 
 rmarkdown::render("vignettes/assumption_types.Rmd", output_format="md_document", output_file = "../README.md", output_options=list("variant" = "markdown_github"))
 x <- readLines("readme.md")

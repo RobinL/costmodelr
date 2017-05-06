@@ -32,7 +32,7 @@ shiny_vis <- function(cost_model) {
             shiny::column(6,
               shiny::dateRangeInput("daterange", "Date range for cumulative costs:",
                            start = kd_min(cost_model$key_dates),
-                           end   = Sys.Date(),
+                           end   = kd_max(cost_model$key_dates),
                            min = kd_min(cost_model$key_dates),
                            max = kd_max(cost_model$key_dates)
               ),
@@ -44,8 +44,13 @@ shiny_vis <- function(cost_model) {
             ),
             shiny::column(3,
               shiny::radioButtons("periodicity", label = "Choose periodicity of table",
-                                  choices = list("Weekly" = "week", "Monthly" = "month"),
-                                  selected = "Monthly")
+                                  choices = list("Weeks" = "date_col_week",
+                                                 "Months" = "date_col_month",
+                                                 "Years" = "date_col_year",
+                                                 "Quarters" = "date_col_quarter",
+                                                 "Financial years" = "date_col_fy",
+                                                 "Financial year quarters" = "date_col_fy_quarter"),
+                                  selected = "Months")
             )
           )
         ),
@@ -53,13 +58,16 @@ shiny_vis <- function(cost_model) {
           shiny::tabPanel("Main",
             shiny::fluidRow(
               shiny::column(6,
-                shiny::fluidRow(shiny::h4("Cumulative costs, split by category, nominal £", align="center")),
+                shiny::fluidRow(shiny::h4("Cumulative costs, split by category, nominal £")),
+                shiny::fluidRow(shiny::htmlOutput("cum_cost_blurb", container = shiny::div)),
                 shiny::fluidRow(vegalite::vegaliteOutput("basic_linechart"))
               ),
               shiny::column(6,
                 shiny::fluidRow(shiny::htmlOutput("total_cost_chart_title", container=shiny::h4)),
+                shiny::fluidRow(shiny::htmlOutput("total_cost_blurb", container = shiny::div)),
                 shiny::fluidRow(vegalite::vegaliteOutput("basic_barchart"))
-              )
+              ),
+              style='padding:20px;margin:20px;'
             ),
 
             shiny::fluidRow(
@@ -72,7 +80,8 @@ shiny_vis <- function(cost_model) {
                 shiny::fluidRow(shiny::h4("Costs through time, nominal £",align="center")),
                 shiny::fluidRow(formattable::formattableOutput("formattedtable_throughtime")),
                 offset=2
-              )
+              ),
+              style='padding:20px;margin:20px;'
             )
 
           ),
@@ -92,15 +101,20 @@ shiny_vis <- function(cost_model) {
         input$periodicity
       })
 
-      cum_costs <- shiny::reactive({
+      cum_costs_filtered <- shiny::reactive({
         cost_model <- get_cumulative_costs(cost_model, granularity())
         cost_model$cumcost_dataframe %>%
           dplyr::filter(date >= input$daterange[1]) %>%
           dplyr::filter(date <= input$daterange[2])
       })
 
+      cum_costs <- shiny::reactive({
+        cost_model <- get_cumulative_costs(cost_model, granularity())
+        cost_model$cumcost_dataframe
+      })
 
-      output$total_cost_chart_title <- renderText({
+
+      output$total_cost_chart_title <- shiny::renderText({
         this_date <- input$total_cost_date
         stringr::str_interp("Total costs up to ${this_date}, nominal £")
       })
@@ -109,7 +123,7 @@ shiny_vis <- function(cost_model) {
 
         vl <- vegalite::vegalite() %>%
           vegalite::cell_size(width=500) %>%
-          vegalite::add_data(cum_costs()) %>%
+          vegalite::add_data(cum_costs_filtered()) %>%
           vegalite::encode_x("date", type="temporal") %>%
           vegalite::encode_y("csum_nominal_gbp", aggregate="sum") %>%
           vegalite::encode_color(granularity(), type="nominal") %>%
@@ -121,6 +135,21 @@ shiny_vis <- function(cost_model) {
         vl$x$config$scale$round <- FALSE
 
         vl
+
+      })
+
+      output$cum_cost_blurb <- shiny::renderText({
+        df <- cost_model$cost_dataframe %>%
+          dplyr::filter(date >= input$daterange[1]) %>%
+          dplyr::filter(date <= input$daterange[2])
+
+        total <- sum(df$cost_gbp_nominal)
+
+        total <- formattable::currency(round(total,-2), symbol="£", digits=0, big.mark=",")
+
+
+        stringr::str_interp("Sum of all costs between ${input$daterange[1]} and ${input$daterange[2]} = ${total}")
+
 
       })
 
@@ -142,11 +171,30 @@ shiny_vis <- function(cost_model) {
 
       })
 
+      output$total_cost_blurb <- shiny::renderText({
+
+        this_data <- cum_costs() %>%
+          dplyr::filter(date == input$total_cost_date)
+
+        total <- sum(this_data$csum_nominal_gbp)
+        total <- formattable::currency(round(total,-2), symbol="£", digits=0, big.mark=",")
 
 
+        stringr::str_interp("Sum of all costs = ${total}")
+
+      })
 
       output$pivot <- rpivotTable::renderRpivotTable({
-        rpivotTable::rpivotTable(data = cost_model$cost_dataframe)
+        df <- cost_model$cost_dataframe
+        df <- df %>%
+          dplyr::mutate(date_col_week = date_col_week(date),
+                        date_col_month = date_col_month(date),
+                        date_col_year = date_col_year(date),
+                        date_col_quarter = date_col_quarter(date),
+                        date_col_fy = date_col_fy(date),
+                        date_col_fy_quarter = date_col_fy_quarter(date))
+
+        rpivotTable::rpivotTable(data = df)
       })
 
       output$formattedtable_xtab <- formattable::renderFormattable({

@@ -49,8 +49,13 @@ get_formattable_formatting_list <- function(table, selection) {
 
 get_formattable <- function(cost_dataframe, selection) {
   formula <- get_formattable_formula(selection)
-  print(formula)
-  table <- reshape2::dcast(cost_dataframe, formula, margins="period", fun.aggregate = sum, value.var = "cost_gbp_nominal")
+
+  margin <- selection
+  if (stringr::str_detect(selection, "category_\\d")) {
+    margin <- "category_1"
+  }
+
+  table <- reshape2::dcast(cost_dataframe, formula, margins=c(margin, "period"), fun.aggregate = sum, value.var = "cost_gbp_nominal")
   print(table)
   formatting_list <- get_formattable_formatting_list(table, selection)
 
@@ -60,16 +65,21 @@ get_formattable <- function(cost_dataframe, selection) {
 get_costs_equal_timeperiods_formattable <- function(cost_dataframe, periodicity) {
 
   lookup <- list()
-  lookup[["week"]] <- "Week %W %Y"
-  lookup[["month"]]<- "%b %Y"
+  lookup[["date_col_week"]] <- date_col_week
+  lookup[["date_col_month"]] <- date_col_month
+  lookup[["date_col_year"]] <- date_col_year
+  lookup[["date_col_quarter"]] <- date_col_quarter
+  lookup[["date_col_fy"]] <- date_col_fy
+  lookup[["date_col_fy_quarter"]] <- date_col_fy_quarter
 
-  this_format <- lookup[[periodicity]]
+  this_format_function <- lookup[[periodicity]]
 
   df <- cost_dataframe %>%
     dplyr::select(date, cost_gbp_nominal) %>%
-    dplyr::group_by(Date= format(date, format=this_format)) %>%
-    dplyr::summarise("Sum of nominal cost" = sum(cost_gbp_nominal)) %>%
-    dplyr::arrange(as.Date(paste("01", Date),format=paste("%d", this_format)))
+    dplyr::arrange(date) %>%
+    dplyr::mutate(date_formatted = this_format_function(date)) %>%
+    dplyr::group_by(Date= date_formatted) %>%
+    dplyr::summarise("Sum of nominal cost" = sum(cost_gbp_nominal))
 
   formattable::formattable(df, list(
     "Sum of nominal cost" = formattable::formatter("span",  x ~ formattable::currency(round(x,-2), symbol="£", digits=0, big.mark=","))
