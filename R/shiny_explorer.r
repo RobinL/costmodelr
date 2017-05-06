@@ -83,18 +83,20 @@ shiny_vis <- function(cost_model) {
                 offset=2
               ),
               style='padding:20px;margin:20px;'
+            ),
+            shiny::wellPanel(
+              shiny::fluidRow(
+                shiny::h4("Filters:"),
+                shiny::uiOutput("data_filters")
+              )
             )
 
           ),
           shiny::tabPanel("Pivot",
                          rpivotTable::rpivotTableOutput("pivot")
           )
-        ),
-        shiny::wellPanel(
-          shiny::fluidRow(
-            shiny::uiOutput("data_filters")
-          )
         )
+
 
       )
     ),
@@ -108,10 +110,6 @@ shiny_vis <- function(cost_model) {
         for (i in cat_choices) {
           this_input <- input[[i]]
           if (length(this_input) > 0) {
-            print(stringr::str_interp("input ${i} is ${input[[i]]}"))
-            print(stringr::str_interp("this_input is character(0): ${identical(this_input, character(0))}"))
-            print(stringr::str_interp("this_input is length: ${length(this_input)}"))
-            print(nrow(df))
             f <- (df[[i]] %in% this_input)
             df <- df[f,]
           }
@@ -218,7 +216,7 @@ shiny_vis <- function(cost_model) {
       })
 
       output$pivot <- rpivotTable::renderRpivotTable({
-        df <- cost_dataframe()
+        df <- cost_model$cost_dataframe
         df <- df %>%
           dplyr::mutate(date_col_week = date_col_week(date),
                         date_col_month = date_col_month(date),
@@ -231,11 +229,11 @@ shiny_vis <- function(cost_model) {
       })
 
       output$formattedtable_xtab <- formattable::renderFormattable({
-        get_formattable(cost_model$cost_dataframe, granularity())
+        get_formattable(cost_dataframe_filtered(), granularity())
       })
 
       output$formattedtable_throughtime <- formattable::renderFormattable({
-        get_costs_equal_timeperiods_formattable(cost_model$cost_dataframe, periodicity())
+        get_costs_equal_timeperiods_formattable(cost_dataframe_filtered(), periodicity())
       })
 
       output$data_filters <- shiny::renderUI({
