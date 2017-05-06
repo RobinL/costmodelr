@@ -25,7 +25,9 @@ Imports:
   hierarchicalbubble,
   formattable,
   rpivotTable
-Remotes: RobinL/hierarchical_bubble_r_html_widget
+Remotes: 
+  RobinL/hierarchical_bubble_r_html_widget
+  hrbrmstr/vegalite
 RoxygenNote: 6.0.1
 Roxygen: list(markdown = TRUE)
 Suggests: knitr,
