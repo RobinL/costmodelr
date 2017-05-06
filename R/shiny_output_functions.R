@@ -9,7 +9,8 @@ get_formattable_formula <- function(selection) {
   selection <- switch(selection,
                         "category_1" = "category_1",
                         "category_2" = "category_1 + category_2",
-                        "category_3" = "category_1 + category_2 + category_3"
+                        "category_3" = "category_1 + category_2 + category_3",
+                        selection
   )
 
 
@@ -48,6 +49,7 @@ get_formattable_formatting_list <- function(table, selection) {
 
 
 get_formattable <- function(cost_dataframe, selection) {
+
   formula <- get_formattable_formula(selection)
 
   margin <- selection
@@ -55,8 +57,12 @@ get_formattable <- function(cost_dataframe, selection) {
     margin <- "category_1"
   }
 
+  print(stringr::str_interp("Formula = ${formula}"))
+  print(stringr::str_interp("Margin = ${margin}"))
+  print(stringr::str_interp("Selection = ${selection}"))
+
   table <- reshape2::dcast(cost_dataframe, formula, margins=c(margin, "period"), fun.aggregate = sum, value.var = "cost_gbp_nominal")
-  print(table)
+
   formatting_list <- get_formattable_formatting_list(table, selection)
 
   formattable::formattable(table, formatting_list)
