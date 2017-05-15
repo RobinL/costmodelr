@@ -25,7 +25,8 @@ Imports:
   hierarchicalbubble,
   formattable,
   rpivotTable,
-  vegalite
+  vegalite,
+  purrrlyr
 Remotes: 
   RobinL/hierarchical_bubble_r_html_widget,
   hrbrmstr/vegalite

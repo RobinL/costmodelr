@@ -35,14 +35,14 @@ process_oneoff_costs <- function(cost_model, this_module) {
   # This chunk ends up in a column called tibbles (each element in this column is a tibble)
   # Then we bind them together
   new_chunks <- oneoff_cost_assumptions %>%
-    purrr::by_row(get_oneoff_cost_chunk, key_dates=cost_model$key_dates, .labels=FALSE, .to = "tibbles") %$%
+    purrrlyr::by_row(get_oneoff_cost_chunk, key_dates=cost_model$key_dates, .labels=FALSE, .to = "tibbles") %$%
     dplyr::bind_rows(tibbles) # Note that the tibbles column is a list-column
 
   # Append all new chunk rows to existing chunks
   cost_model$chunks <- dplyr::bind_rows(new_chunks, cost_model$chunks)
 
   new_ids <- oneoff_cost_assumptions %>%
-    purrr::by_row(get_oneoff_cost_id, cost_model=cost_model, .labels=FALSE, .to = "tibbles") %$%
+    purrrlyr::by_row(get_oneoff_cost_id, cost_model=cost_model, .labels=FALSE, .to = "tibbles") %$%
     dplyr::bind_rows(tibbles)
 
   cost_model$id_lookup <- dplyr::bind_rows(new_ids, cost_model$id_lookup)
@@ -70,7 +70,3 @@ add_oneoff_costs <- function(cost_model, oneoff_cost_assumptions) {
 
   cost_model
 }
-
-
-
-

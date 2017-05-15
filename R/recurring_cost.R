@@ -1,7 +1,8 @@
 # Recurring cost
 
 #' Model recurring costs from an assumptions list
-#' @param assumptions_list
+#'
+#' @param assumptions_list some assumptions
 #' @param key_dates a key dates dataframe so the recurring costs have an end date
 get_recurring_cost_chunk <- function(assumption_list, key_dates) {
   al <- assumption_list
@@ -74,7 +75,7 @@ process_recurring_costs <- function(cost_model, this_module) {
 
   # Iterate through rows of the assumptions, getting chunks
   new_chunks <- recurring_cost_assumptions %>%
-    purrr::by_row(get_recurring_cost_chunk, key_dates=cost_model$key_dates, .labels = FALSE, .to = "tibbles") %$%
+    purrrlyr::by_row(get_recurring_cost_chunk, key_dates=cost_model$key_dates, .labels = FALSE, .to = "tibbles") %$%
     dplyr::bind_rows(tibbles)
 
 
@@ -83,7 +84,7 @@ process_recurring_costs <- function(cost_model, this_module) {
   cost_model$chunks <- dplyr::bind_rows(new_chunks, cost_model$chunks)
 
   new_ids <- recurring_cost_assumptions %>%
-    purrr::by_row(get_recurring_cost_id, cost_model=cost_model, .labels=FALSE, .to = "tibbles") %$%
+    purrrlyr::by_row(get_recurring_cost_id, cost_model=cost_model, .labels=FALSE, .to = "tibbles") %$%
     dplyr::bind_rows(tibbles)
 
   cost_model$id_lookup <- dplyr::bind_rows(new_ids, cost_model$id_lookup)
@@ -109,7 +110,3 @@ add_recurring_cost <- function(cost_model, recurring_cost_assumptions) {
 
   cost_model
 }
-
-
-
-

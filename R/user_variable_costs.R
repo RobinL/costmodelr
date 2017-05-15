@@ -59,14 +59,14 @@ process_user_variable_costs <- function(cost_model, this_module) {
 
   # Iterate through rows of the assumptions, getting chunks
   new_chunks <- user_variable_cost_assumptions %>%
-    purrr::by_row(get_user_variable_costs_chunk, users = num_users, key_dates=cost_model$key_dates, .labels = FALSE, .to = "tibbles") %$%
+    purrrlyr::by_row(get_user_variable_costs_chunk, users = num_users, key_dates=cost_model$key_dates, .labels = FALSE, .to = "tibbles") %$%
     dplyr::bind_rows(tibbles)
 
   # Append all new chunk rows to existing chunks
   cost_model$chunks <- dplyr::bind_rows(new_chunks, cost_model$chunks)
 
   new_ids <- user_variable_cost_assumptions %>%
-    purrr::by_row(get_user_variable_costs_id, cost_model=cost_model, .labels=FALSE, .to = "tibbles") %$%
+    purrrlyr::by_row(get_user_variable_costs_id, cost_model=cost_model, .labels=FALSE, .to = "tibbles") %$%
     dplyr::bind_rows(tibbles)
 
   cost_model$id_lookup <- dplyr::bind_rows(new_ids, cost_model$id_lookup)

@@ -8,6 +8,8 @@ get_recurring_cost_chunk(assumption_list, key_dates)
 }
 \arguments{
 \item{key_dates}{a key dates dataframe so the recurring costs have an end date}
+
+\item{assumptions_list}{some assumptions}
 }
 \description{
 Model recurring costs from an assumptions list

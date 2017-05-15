@@ -4,7 +4,7 @@
 \alias{get_cumulative_costs}
 \title{Derives cumulative costs, for plotting}
 \usage{
-get_cumulative_costs(cost_model, groupby_vars)
+get_cumulative_costs(cost_model, cost_dataframe, groupby_vars)
 }
 \description{
 Derives cumulative costs, for plotting
