@@ -27,11 +27,15 @@ test_that("test full example 2", {
 
   testthat::expect_equal(unique(df3$cost_gbp_nominal) , 100)
 
-  deflator <- (df %>%
+  deflator1 <- (df %>%
                  dplyr::filter(date == as.Date("2021-01-01")) %>%
                  dplyr::select(gdp_deflator))[[1,1]]
 
-  expect_equal(deflator, 1.02^4)
+  deflator2 <- (df %>%
+                 dplyr::filter(date == as.Date("2019-01-01")) %>%
+                 dplyr::select(gdp_deflator))[[1,1]]
+
+  expect_equal(deflator1/deflator2, 1.02^2)
 
   gb <- (df %>%
            dplyr::filter(date == as.Date("2021-01-01")) %>%
