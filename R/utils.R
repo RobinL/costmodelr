@@ -33,8 +33,8 @@ get_xr <- memoise::memoise(function(from,to="GBP") {
   if (from == "GBP") {
     return(1.00)
   }
-  xr <- quantmod::getQuote(paste0(from, to, "=X"))
-  xr <- xr[1,"Last"]
+  xr <- quantmod::getQuote(paste0(from, to, "=X"), what="regularMarketPrice")
+  xr <- xr[1,2]
   xr
 })
 
