@@ -101,10 +101,15 @@ convert_excel_dates_in_df <- function(df, cols="date") {
   }
 
   for (col in cols) {
-    tt <- tryCatch(as.Date(lubridate::parse_date_time(df[[col]], c("dmy", "dmY"))), error=function(e) return(FALSE), warning=function(w) return(FALSE))
-    if (class(tt) == "Date" & class(df[[col]]) != "Date") {
-      message(paste("Converting column ", col, "to date.  Note, this guesses the format so if your dates are accidentally in mm/dd/yyyy you might have problems"))
-      df[[col]] <-  as.Date(lubridate::parse_date_time(df[[col]], c("dmy", "dmy")))
+
+    # If the col to convert is actually in the dataframe
+    if (col %in% colnames(df)) {
+      tt <- tryCatch(as.Date(lubridate::parse_date_time(df[[col]], c("dmy", "dmY"))), error=function(e) return(FALSE), warning=function(w) return(FALSE))
+
+      if (class(tt) == "Date" & class(df[[col]]) != "Date") {
+        message(paste("Converting column ", col, "to date.  Note, this guesses the format so if your dates are accidentally in mm/dd/yyyy you might have problems"))
+        df[[col]] <-  as.Date(lubridate::parse_date_time(df[[col]], c("dmy", "dmy")))
+      }
     }
   }
   df
