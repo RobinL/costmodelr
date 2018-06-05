@@ -70,7 +70,7 @@ add_greenbook_discount <- function(gdp_deflator_df,green_book_discount_rate = 0.
   gbr <- green_book_discount_rate + 1
 
   gdp_deflator_df <- gdp_deflator_df %>%
-    dplyr::mutate(n = row_number()) %>%
+    dplyr::mutate(n = dplyr::row_number()) %>%
     dplyr::mutate(green_book_discount = (gbr^(1/365.25))^(n))
 
   rebase <- (gdp_deflator_df %>%
