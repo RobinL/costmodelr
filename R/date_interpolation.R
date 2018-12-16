@@ -3,7 +3,7 @@
 #' @export
 get_all_dates <- function(df, date_col="date", by="day") {
 
-  if (!class(df)[1] == "tbl_df") {
+  if (!("tbl_df" %in% class(key_dates))) {
     stop("Must pass a tibble not a data frame or anything else")
   }
 
