@@ -1,6 +1,3 @@
-library(shiny)
-library(hierarchicalbubble)
-
 #' A Shiny app that enables the user to explore the cost model
 #'
 #' @export

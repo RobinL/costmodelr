@@ -35,5 +35,6 @@ Suggests: knitr,
     formattable,
     DT,
     rpivotTable,
-    vegalite
+    vegalite,
+    shiny
 VignetteBuilder: knitr
