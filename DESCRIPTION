@@ -20,12 +20,7 @@ Imports:
   readr,
   reshape2,
   magrittr,
-  DT,
   purrr,
-  hierarchicalbubble,
-  formattable,
-  rpivotTable,
-  vegalite,
   purrrlyr
 Remotes: 
   RobinL/hierarchical_bubble_r_html_widget,
@@ -35,5 +30,10 @@ Roxygen: list(markdown = TRUE)
 Suggests: knitr,
     rmarkdown,
     testthat,
-    covr
+    covr,
+    hierarchicalbubble,
+    formattable,
+    DT,
+    rpivotTable,
+    vegalite
 VignetteBuilder: knitr
